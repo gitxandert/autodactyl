@@ -10,11 +10,12 @@ An exciting projected feature is the Autodactyl Community, a hub where users can
 
 ## Backend
 
-- Framework: Flask API
+- Framework: Flask API + LangChain
 - Functions: Handles user requests, manages conversation histories, and interfaces from a locally-hosted LLM.
 - Architecture:
   - The LLM runs in its own Docker container, isolated from the frontend.
   - Backend grants limited model access over a local port.
+  - Conversations are routed and persisted via LangChain.
   - SQLite database stores course drafts and metadata for persistence after initial course development.
 
 ## Frontend
