@@ -1,0 +1,34 @@
+# Python cache / build artifacts
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# SQLite database
+backend/app/courses/database
+
+# Node.js dependencies
+frontend/node_modules/
+frontend/dist/        
+frontend/build/       
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Backups
+*~
+
+# Notes to self
+*notes.txt
