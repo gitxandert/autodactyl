@@ -1,0 +1,14 @@
+:80
+
+route {
+  # API → FastAPI
+  handle_path /api/* {
+    reverse_proxy backend:8000
+  }
+
+  # Everything else → Nginx (serving your React build)
+  handle {
+    reverse_proxy frontend:80
+  }
+}
+
