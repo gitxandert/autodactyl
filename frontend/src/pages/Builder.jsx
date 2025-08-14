@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { useApi } from "../api/useApi.jsx";
 import Home from "./Home.jsx";
 
@@ -77,12 +78,13 @@ export default function Builder() {
       <div style={{
          maxWidth: 960, margin: "2rem auto", fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif", padding: "0 1rem"
       }}>
+
+         <Link to="/"><button>Home</button></Link>
+         
          <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
             <h1 style={{ fontSize: 28, margin: 0 }}>Course Builder</h1>
             <code style={{ fontSize: 12, opacity: 0.8 }}>session: {sessionId}</code>
          </header>
-      
-         <Home />
 
          <section style={{ marginTop: 16 }}>
             <label htmlFor="msg" style={{ fontWeight: 600 }}>Message</label>
