@@ -10,7 +10,7 @@ An exciting projected feature is the Autodactyl Community, a hub where users can
 
 ## Backend
 
-- Framework: Flask API + LangChain
+- Framework: Fast API + LangChain
 - Functions: Handles user requests, manages conversation histories, and interfaces from a locally-hosted LLM.
 - Architecture:
   - The LLM runs in its own Docker container, isolated from the frontend.
