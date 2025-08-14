@@ -172,3 +172,26 @@ def get_all_courses(con: sqlite3.Connection):
     rows = con.execute(sql).fetchall()
 
     return [dict(r) for r in rows]
+
+def get_sections(con: sqlite3.Connection, course_id: int):
+    
+    con.row_factory = sqlite3.Row
+
+    sql = f"""
+    SELECT
+        s.id                       AS id,
+        s.title                    AS title,
+        
+        (SELECT COUNT(*)
+         FROM lessons l
+         WHERE l.section_id = s.id) AS lesson_count
+
+    FROM sections AS s
+    WHERE s.course_id = ?
+    ORDER BY s.position;
+    """
+    rows = con.execute(sql, (course_id,)).fetchall()
+
+    return [dict(r) for r in rows]
+
+
