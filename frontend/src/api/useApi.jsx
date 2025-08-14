@@ -1,3 +1,5 @@
+import { useCallback } from "react";
+
 const API_BASE = (import.meta?.env?.VITE_API_BASE ?? "").replace(/\/$/, ""); 
 
 export function useApi(base = API_BASE) {
@@ -21,18 +23,17 @@ export function useApi(base = API_BASE) {
          return res.json();
    };
 
-// this will need to take a user_id eventually
-   const listCourses = async () => {
+// this will need to be POST and incorporate a user_id eventually
+   const listCourses = useCallback(async () => {
       const res = await fetch(`${base}/api/list-courses`, {
          method: "GET",
          credentials: "include",
-         headers: { "Accept": "application.json" },
+         headers: { "Accept": "application/json" },
       });
-      if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
-      /** @type {CourseSummary[]} */
       const json = await res.json();
-      return json;
-  };
+      if (!res.ok || !json.ok) throw new Error(json.error || "Failed to list courses.");
+      return json.result;
+  }, []);
 
    return {
       buildCourse,
