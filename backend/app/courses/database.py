@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS lessons (
   description TEXT NOT NULL,
   body_md    TEXT,
   position   INTEGER NOT NULL,
-  UNIQUE(course_id, position)
+  UNIQUE(section_id, position)
 );
 
 CREATE TABLE IF NOT EXISTS exercises (
@@ -143,3 +143,32 @@ def print_course(con, course_id: int):
     ).fetchall()
     for lid, ltitle, lpos, sec_id in lessons:
         print(f"[{lid}] {ltitle} (pos {lpos}, section {sec_id})")
+
+def get_all_courses(con: sqlite3.Connection): 
+    # eventually take a user_id argument
+
+    con.row_factory = sqlite3.Row
+    
+    # where = "WHERE c.user_id = ?" if user_id is not None else ""
+    # params = [user_id] if user_id is not None else []
+
+    sql = f"""
+    SELECT
+        c.id                       AS id,
+        c.title                    AS title,
+        c.description              AS description,
+        
+        (SELECT COUNT(*)
+         FROM sections s
+         WHERE s.course_id = c.id) AS section_count,
+
+        (SELECT COUNT(*)
+         FROM lessons l
+         WHERE l.course_id = c.id) AS lesson_count
+
+    FROM courses AS c
+    ORDER BY c.id DESC;
+    """
+    rows = con.execute(sql).fetchall()
+
+    return [dict(r) for r in rows]
