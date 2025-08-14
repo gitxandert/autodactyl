@@ -105,3 +105,7 @@ def approve(payload: ApproveMsg):
     except Exception as e:
         return JSONResponse({"ok": False, "error": str(e)}, status_code=500)
 
+@app.post("/api/list-courses")
+def list_courses():
+    # will eventually need to accept a payload: user_id
+    pass
