@@ -23,22 +23,41 @@ export function useApi(base = API_BASE) {
          return res.json();
    };
 
-// this will need to be POST and incorporate a user_id eventually
+// this will need to incorporate a user_id eventually
    const listCourses = useCallback(async () => {
       const res = await fetch(`${base}/api/list-courses`, {
-         method: "GET",
          credentials: "include",
-         headers: { "Accept": "application/json" },
+         headers: { Accept: "application/json" },
       });
+
+      if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
+
       const json = await res.json();
-      if (!res.ok || !json.ok) throw new Error(json.error || "Failed to list courses.");
+      if (!json.ok) throw new Error(json.error || "Failed to list courses.");
+
       return json.result;
-  }, []);
+   }, []);
+
+   const listSections = useCallback(async (course_id) => {
+      const id = Number(course_id);
+      const res = await fetch(`${base}/api/list-sections?course_id=${id}`, {
+         credentials: "include",
+         headers: { Accept: "application/json" },
+      });
+
+      if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
+
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || "Failed to list sections.");
+
+      return json.result;
+   },[]);
 
    return {
       buildCourse,
       approveCourse,
-      listCourses
-  };
+      listCourses,
+      listSections
+   };
 }
 

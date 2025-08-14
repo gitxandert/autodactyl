@@ -1,11 +1,11 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Query
 from fastapi.responses import JSONResponse, PlainTextResponse
 import os, sqlite3
 
 from api_helpers.helper_classes import CourseMsg, ApproveMsg
 from api_helpers.helper_functions import coerce_model_json
 
-from courses.database import init_db, get_all_courses
+from courses.database import init_db, get_all_courses, get_sections
 import llm_operations.course_building.course_builder as course_builder
 
 DB_PATH = os.environ.get("SQLITE_PATH", "app/courses/database/courses.sqlite")
@@ -61,12 +61,21 @@ def approve(payload: ApproveMsg):
     except Exception as e:
         return JSONResponse({"ok": False, "error": str(e)}, status_code=500)
 
-# make this into POST later, with user_id (wrapped in helper class)
+# add user_id (wrapped in helper class)
 @app.get("/api/list-courses")
 def list_courses():
     try:
-        con = sqlite3.connect(DB_PATH)
-        courses = get_all_courses(con)
-        return JSONResponse({"ok": True, "result": courses})
+        with sqlite3.connect(DB_PATH) as con:
+            courses = get_all_courses(con)
+        return {"ok": True, "result": courses}
+    except Exception as e:
+        return JSONResponse({"ok": False, "error": str(e)}, status_code=500)
+
+@app.get("/api/list-sections")
+def list_sections(course_id: int = Query(..., ge=1)):
+    try:
+        with sqlite3.connect(DB_PATH) as con:
+            sections = get_sections(con, course_id)
+        return {"ok": True, "result": sections}
     except Exception as e:
         return JSONResponse({"ok": False, "error": str(e)}, status_code=500)
