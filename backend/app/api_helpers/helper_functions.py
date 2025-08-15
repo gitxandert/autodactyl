@@ -35,4 +35,3 @@ def coerce_model_json(x):
         return inner
     except Exception:
         raise ValueError("Model did not return valid JSON")
-

@@ -3,17 +3,22 @@ import { useCallback } from "react";
 const API_BASE = (import.meta?.env?.VITE_API_BASE ?? "").replace(/\/$/, ""); 
 
 export function useApi(base = API_BASE) {
-   const buildCourse = async (message, session_id) => {
-      const res = await fetch(`${base}/api/build-course`, {
+   const LLMchat = async ({purpose, message, session_id}) => {
+      console.log({purpose, message, session_id});
+      const res = await fetch(`${base}/api/chat`, {
          method: "POST",
          headers: { "Content-Type": "application/json" },
-         body: JSON.stringify({ message, session_id }),
+         body: JSON.stringify({ 
+            purpose, 
+            message, 
+            session_id }),
       });
       if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
       return res.json();
    };
 
    const approveCourse = async (session_id) => {
+      console.log(session_id);
       const res = await fetch(`${base}/api/approve`, {
          method: "POST",
          headers: { "Content-Type": "application/json" },
@@ -54,7 +59,7 @@ export function useApi(base = API_BASE) {
    },[]);
 
    return {
-      buildCourse,
+      LLMchat,
       approveCourse,
       listCourses,
       listSections

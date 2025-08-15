@@ -2,7 +2,7 @@ from fastapi import FastAPI, Query
 from fastapi.responses import JSONResponse, PlainTextResponse
 import os, sqlite3
 
-from api_helpers.helper_classes import CourseMsg, ApproveMsg
+from api_helpers.helper_classes import ChatRoutes, ChatMsg, ApproveMsg
 from api_helpers.helper_functions import coerce_model_json
 
 from courses.database import init_db, get_all_courses, get_sections
@@ -26,24 +26,22 @@ def healthz():
     return PlainTextResponse("ok")
 
 # ---- Route ----
-@app.post("/api/build-course")
-def build_course(payload: CourseMsg):
+@app.post("/api/chat")
+def chat(payload: ChatMsg):
+    func = ChatRoutes.functions.get(payload.purpose)
     try:
-        raw = course_builder.build_course(
-            message=payload.message, session_id=payload.session_id
-        )
+        raw = func(message=payload.message, session_id=payload.session_id)
         obj = coerce_model_json(raw)
 
-        # If obj["draft"] is itself a JSON string, parse that too
-        draft = obj.get("draft")
-        if isinstance(draft, str):
-            try:
-                obj["draft"] = coerce_model_json(draft)
-            except Exception:
-                pass  # leave as-is if not valid
-        
-        course_builder.set_draft(obj["draft"])
-        # Return a true JSON object, not a quoted string
+        # If obj["draft"] exists and is itself a JSON string, parse that too
+        if isinstance(obj, dict) and "draft" in obj:
+            draft = obj.get("draft")
+            if isinstance(draft, str):
+                try:
+                    obj["draft"] = coerce_model_json(draft)
+                except Exception:
+                    pass  # leave as-is if not valid
+            course_builder.set_draft(obj["draft"])
         return JSONResponse({"ok": True, "result": obj})
     except Exception as e:
         return JSONResponse({"ok": False, "error": str(e)}, status_code=500)
