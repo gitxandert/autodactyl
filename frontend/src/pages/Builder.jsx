@@ -1,7 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useApi } from "../api/useApi.jsx";
 import Home from "./Home.jsx";
+import Courses from "./course_pages/Courses.jsx";
+import Chat from "../components/Chat.tsx";
 
 function useSessionId(key = "course_session_id") {
   const [sessionId, setSessionId] = useState("");
@@ -21,8 +23,9 @@ function pretty(obj) {
 }
 
 export default function Builder() {
+   const navigate = useNavigate();
    const sessionId = useSessionId();
-   const { buildCourse, approveCourse } = useApi();
+   const { LLMchat, approveCourse } = useApi();
    const [input, setInput] = useState("");
    const [busy, setBusy] = useState(false);
    const [log, setLog] = useState([]); // {role: 'user'|'system', text}
@@ -35,100 +38,58 @@ export default function Builder() {
 
    const canApprove = useMemo(() => !!draft, [draft]);
 
-   async function sendMessage() {
-      const msg = input.trim();
-      if (!msg) return;
-      setInput("");
-      setLog((l) => [...l, { role: "user", text: msg }]);
-      setBusy(true);
-      try {
-         const data = await buildCourse(msg, sessionId);
-         if (!data.ok) throw new Error(data.error || "Request failed");
-
-         const dataResponse = data.result.response;
-         setLog((l) => [...l, { role: "system", text: dataResponse }]);
-      
-         const maybeDraft = data.result?.draft ?? data.result?.course ?? data.result;
-         setDraft(maybeDraft);
-      } catch (e) {
-         setLog((l) => [...l, { role: "system", text: `Error: ${e.message}` }]);
-      } finally {
-         setBusy(false);
-      }
-   }
-
    async function approve() {
       if (!canApprove) return;
       setBusy(true);
-      setLog((l) => [...l, { role: "user", text: "Approve" }]);
       try {
          const data = await approveCourse(sessionId);
          if (!data.ok) throw new Error(data.error || "Approval failed");
-         setLog((l) => [...l, { role: "system", text: "Approved and saved to DB." }]);
-      // Optionally clear draft after approval
-      // setDraft(null);
+         navigate("/courses");
       } catch (e) {
-         setLog((l) => [...l, { role: "system", text: `Error: ${e.message}` }]);
+         console.error(e);
       } finally {
          setBusy(false);
       }
    }
 
-   return (
-      <div style={{
-         maxWidth: 960, margin: "2rem auto", fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif", padding: "0 1rem"
-      }}>
-
-         <Link to="/"><button>Home</button></Link>
-         
-         <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
-            <h1 style={{ fontSize: 28, margin: 0 }}>Course Builder</h1>
-            <code style={{ fontSize: 12, opacity: 0.8 }}>session: {sessionId}</code>
-         </header>
-
-         <section style={{ marginTop: 16 }}>
-            <label htmlFor="msg" style={{ fontWeight: 600 }}>Message</label>
-            <textarea
-               id="msg"
-               value={input}
-               onChange={(e) => setInput(e.target.value)}
-               placeholder="e.g., Create a 4-week course with 2 lessons/week, quizzes on Fridays."
-               style={{ width: "100%", minHeight: 100, marginTop: 8, padding: 10, borderRadius: 8, border: "1px solid #ddd" }}
-               onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) sendMessage(); }}
-            />
-            <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-               <button onClick={sendMessage} disabled={busy} style={btnStyle}>{busy ? "Working…" : "Send"}</button>
-               <button onClick={approve} disabled={!canApprove || busy} style={{ ...btnStyle, background: canApprove && !busy ? "#0b8457" : "#9fb7aa" }}>Approve & Save</button>
-            </div>
-            <p style={{ fontSize: 12, opacity: 0.7, marginTop: 8 }}>Tip: press Ctrl/Cmd + Enter to send.</p>
-         </section>
-
-         <section style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 24 }}>
+   return(
+      <section style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 24 }}>
+         <div>
+            <Link to="/"><button>Home</button></Link>
+            <h2 style={{ fontSize: 18, marginBottom: 8 }}>Chat</h2>
             <div>
-               <h2 style={{ fontSize: 18, marginBottom: 8 }}>Activity</h2>
-               <div ref={outRef} style={{ height: 260, overflow: "auto", border: "1px solid #eee", borderRadius: 8, padding: 10, background: "#fafafa" }}>
-                  {log.length === 0 && <div style={{ opacity: 0.6 }}>No messages yet.</div>}
-                  {log.map((m, i) => (
-                     <div key={i} style={{ marginBottom: 8 }}>
-                        <b style={{ textTransform: "capitalize" }}>{m.role}:</b> {m.text}
-                     </div>
-                  ))}
-                  </div>
-               </div>
-            <div>
-               <h2 style={{ fontSize: 18, marginBottom: 8 }}>Current Draft</h2>
-               <pre style={{ height: 260, overflow: "auto", border: "1px solid #eee", borderRadius: 8, padding: 10, background: "#111", color: "#e6e6e6" }}>
-            {draft ? pretty(draft) : "—"}
-               </pre>
+               <Chat
+                purpose={"build"}
+                sessionId={sessionId}
+                disabled={!sessionId}
+                height={260}
+                footerExtras={(
+                  <button onClick={approve} disabled={!canApprove || busy} style={{ background: canApprove && !busy ? "#0b8457" : "#9fb7aa", color: "#fff", border: 0, borderRadius: 8, padding: "8px 12px" }}>
+                     Approve & Save
+                  </button>
+                )}
+                onReply={(_, __, server) => {
+                   // try to find a draft/course in the server payload
+                  const result = server?.result ?? server;
+                  const maybeDraft =
+                    result?.draft ??
+                    result?.course ??
+                    result?.data?.draft ??
+                    result?.data?.course ??
+                    null;
+              
+                  if (maybeDraft) setDraft(maybeDraft);
+                }}
+                />
             </div>
-         </section>
-
-         <footer style={{ marginTop: 24, fontSize: 12, opacity: 0.75 }}>
-            <p>
-          Backend base URL is assumed to be <code>http://localhost:8000</code>. If different, change <code>useApi()</code> above.
-            </p>
-         </footer>
-      </div>
+         </div>
+         <div>
+            <h2 style={{ fontSize: 18, marginBottom: 8 }}>Current Draft</h2>
+            <pre style={{ height: 260, overflow: "auto", border: "1px solid #eee", borderRadius: 8, padding: 10, background: "#111", color: "#e6e6e6" }}>
+               {draft ? pretty(draft) : "—"}
+            </pre>
+         </div>
+      </section>
    );
 }
 
