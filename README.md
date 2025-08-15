@@ -1,4 +1,4 @@
-![Autodactyl logo](frontend/public/autodactyl.svg)
+![Autodactyl logo](frontend/public/autodactyl.svg =250x250)
 
 # Autodactyl
 self-supervised learning — design and refine interactive courses featuring lessons, quizzes, exercises, and prompts, all with the help of AI.
