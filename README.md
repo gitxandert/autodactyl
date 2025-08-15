@@ -1,7 +1,7 @@
 <img src="frontend/public/autodactyl.svg" width="200" height="200">
 
 # Autodactyl
-self-supervised learning — design and refine interactive courses featuring lessons, quizzes, exercises, and prompts, all with the help of AI.
+LLM-supervised learning — design and refine interactive courses featuring lessons, quizzes, exercises, and prompts, all with the help of AI.
 
 ## Overview
 LLMs are powerful tools for learning, but they can sometimes feel like Wikipedia pages with personalities. Autodactyl is designed to organize the enormous educational potential of LLMs into structured, user-defined courses on any topic of their desire, replete with specialized lessons, quizzes, exercises, and projects. 
