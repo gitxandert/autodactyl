@@ -58,11 +58,27 @@ export function useApi(base = API_BASE) {
       return json.result;
    },[]);
 
+   const listLessons = useCallback(async (section_id) => {
+      const id = Number(section_id);
+      const res = await fetch(`${base}/api/list-lessons?section_id=${id}`, {
+         credentials: "include",
+         headers: { Accept: "application/json" },
+      });
+
+      if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
+
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || "Failed to list lessons.");
+
+      return json.result;
+   },[]);
+
    return {
       LLMchat,
       approveCourse,
       listCourses,
-      listSections
+      listSections,
+      listLessons
    };
 }
 
