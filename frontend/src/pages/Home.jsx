@@ -7,20 +7,20 @@ import Profile from "./Profile.jsx";
 
 export default function Home() {
    return (
-      <div>
-         <Link to="/about">
+      <div className="main">
+         <Link to="/about" className="mainButton-About">
             <button>About</button>
          </Link>
-         <Link to="/builder">
-            <button>Builder</button>
+         <Link to="/builder" className="mainButton-Builder">
+             <button>Builder</button>
          </Link>
-         <Link to="/community">
+         <Link to="/community" className="mainButton-Community">
             <button>Community</button>
          </Link>
-         <Link to="/courses">
+         <Link to="/courses" className="mainButton-Courses">
             <button>Courses</button>
          </Link>
-         <Link to="/profile">
+         <Link to="/profile" className="mainButton-Profile">
             <button>Profile</button>
          </Link>
       </div>
