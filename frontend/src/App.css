@@ -5,38 +5,106 @@
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
 .card {
   padding: 2em;
 }
 
-.read-the-docs {
-  color: #888;
+/* main (Home.jsx) */
+
+.main {
+   display: grid;
+   grid-template-columns: repeat(11, [main-col] 1fr);
+   grid-template-rows:    repeat(7, [main-row] 1fr);
+   gap: 1rem;
+}
+
+.mainButton-About {
+   grid-row:    main-row 4;
+   grid-column: main-col 2;
+}
+
+.mainButton-Builder {
+   grid-column: main-col 4;
+   grid-row:    main-row 2;
+}
+
+.mainButton-Community {
+   grid-column: main-col 6;
+   grid-row:    main-row 6;
+}
+
+.mainButton-Courses {
+   grid-column: main-col 8;
+   grid-row:    main-row 2;
+}
+
+.mainButton-Profile {
+   grid-column: main-col 10;
+   grid-row:    main-row 4;
+}
+
+{/* @keyframes mainSpin {
+   from { transform: rotate(0deg); }
+   to   { transform: rotate(360deg); }
+}
+
+.main {
+   animation: mainSpin 20s linear infinite;
+} */}
+
+/* Builder */
+
+.lessons {
+   display: grid;
+   grid-template-columns: repeat(3, [less-col] 1fr);
+   grid-template-rows:    [row-1] 10% [row-2] 10% [row-3] 80% [rows-end];
+}
+
+.lessons-nav {
+   grid-column: 1 / 4;
+   grid-row:    row-1;
+   display:     flex;
+   justify-content: space-evenly;
+}
+
+.lessons-header {
+   grid-column: less-col 1;
+   grid-row:    row-2;
+}
+
+.lessons-list {
+   grid-column: less-col 1;
+   grid-row:    row-3;
+}
+
+.lessons-interact {
+   grid-column: less-col 2 / 4;
+   grid-row:    row-3;
+}
+
+.dynamicList li {
+   list-style-type: decimal;
+   background-color: hsl(0, 0%, 50%);
+   border-radius: 10px 0px;
+   padding: 15px;
+   margin-bottom: 10px;
+   width: 300px;
+   height: 75px;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   box-sizing: border-box;
+   text-align: center;
+   color: hsl(0, 0%, 0%);
+   transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
+}
+
+.dynamicList li:hover {
+   background-color: hsl(0, 0%, 30%);
+   color: hsl(0, 0%, 100%);
+   cursor: pointer;
+}
+
+@media (prefers-color-scheme: dark) {
+
 }
