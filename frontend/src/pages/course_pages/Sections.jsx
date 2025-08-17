@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import Home from "../Home.jsx";
 import Courses from "./Courses.jsx";
+import Lessons from "./Lessons.jsx";
 import { useApi } from "../../api/useApi.jsx";
 import Card from "../../components/Card.jsx";
 
@@ -42,7 +43,8 @@ export default function Sections() {
          <Link to="/"><button>Home</button></Link>
 
          {sections.map((s) => (
-            <Card key={s.id} title={s.title}>
+            <Link key={s.id} to={`/lessons/${courseId}/${s.id}`}>
+            <Card title={s.title}>
                <p className="text-sm text-muted-foreground">
                   {s.description}
                </p>
@@ -50,6 +52,7 @@ export default function Sections() {
                   <span>Lessons: {s.lesson_count}</span>
                </div>
             </Card>
+            </Link>
          ))}
       </div>     
    );     

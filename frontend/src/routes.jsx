@@ -10,6 +10,7 @@ import Profile from "./pages/Profile.jsx";
 
 {/* Courses pages */}
 import Sections from "./pages/course_pages/Sections.jsx";
+import Lessons from "./pages/course_pages/Lessons.jsx";
 
 export default function AppRoutes() {
   return (
@@ -27,7 +28,8 @@ export default function AppRoutes() {
           
           {/* Courses routes */}
           <Route path="/sections/:courseId" element={<Sections />} />
-          
+          <Route path="/lessons/:courseId/:sectionId" element={<Lessons />} />
+
           {/* default route */}
           <Route index element={<Home  />} />
         </Routes>
