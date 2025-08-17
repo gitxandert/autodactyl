@@ -194,4 +194,19 @@ def get_sections(con: sqlite3.Connection, course_id: int):
 
     return [dict(r) for r in rows]
 
+def get_lessons(con: sqlite3.Connection, section_id: int):
+    
+    con.row_factory = sqlite3.Row
 
+    sql = f"""
+    SELECT
+        l.id                       AS id,
+        l.title                    AS title,
+        l.description              AS description
+    FROM lessons AS l
+    WHERE l.section_id = ?
+    ORDER BY l.position;
+    """
+    rows = con.execute(sql, (section_id,)).fetchall()
+
+    return [dict(r) for r in rows]
