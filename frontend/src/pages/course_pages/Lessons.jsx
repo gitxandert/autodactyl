@@ -1,10 +1,19 @@
+/* react */
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+
+/* pages */
 import Home from "../Home.jsx";
 import Courses from "./Courses.jsx";
 import Sections from "./Sections.jsx";
+
+/* components */
+import Chat from "../../components/Chat.tsx";
+
+/* api */
 import { useApi } from "../../api/useApi.jsx";
 
+/* Lessons */
 export default function Lessons() {
    const { courseId, sectionId: sidString } = useParams();
 
@@ -15,8 +24,7 @@ export default function Lessons() {
    }
    
    const sectionId = parsed;
-   {/* include interactiveLesson later */}
-   const { LLMchat, listLessons } = useApi();
+   const { listLessons } = useApi();
    const [lessons, setLessons] = useState([]);
    const [error, setError] = useState(null);
 
@@ -36,8 +44,8 @@ export default function Lessons() {
    const [showChat, setShowChat]               = useState(false);
 
    const showDescription = (id) =>  {
-      const lesson = lessons.find(l => l.id === id);
       if (!showChat){
+         const lesson = lessons.find(l => l.id === id);
          setCurrentLessonId(lesson?.id ?? null);
          setDescription(lesson?.description ?? "");
       }
@@ -65,7 +73,17 @@ export default function Lessons() {
          <div className="lessons-interact">
             {showChat ? (
                <>
-                  <p>showing chat</p>
+                  <Chat
+                   purpose={"learn"}
+                   sessionId={currentLessonId}
+                   disabled={!currentLessonId}
+                   height={260}
+                   footerExtras={(
+                      <button /* onClick={continue} disabled={!canContinue || busy} */>
+                         Continue
+                      </button>
+                   )}
+                   />
                   <button onClick={() => setShowChat(false)}>Back</button>
                </>
             ) : description ? (

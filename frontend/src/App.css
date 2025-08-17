@@ -58,6 +58,7 @@
    display: grid;
    grid-template-columns: repeat(3, [less-col] 1fr);
    grid-template-rows:    [row-1] 10% [row-2] 10% [row-3] 80% [rows-end];
+   gap: 2rem;
 }
 
 .lessons-nav {
