@@ -7,14 +7,12 @@ import Chat from "../components/Chat.tsx";
 
 function useSessionId(key = "course_session_id") {
   const [sessionId, setSessionId] = useState("");
+  
   useEffect(() => {
-    let sid = localStorage.getItem(key);
-    if (!sid) {
-      sid = crypto.randomUUID();
-      localStorage.setItem(key, sid);
-    }
-    setSessionId(sid);
-  }, [key]);
+     const sid = crypto.randomUUID();
+     setSessionId(sid);
+  }, []);
+
   return sessionId;
 }
 
