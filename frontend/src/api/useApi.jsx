@@ -5,13 +5,15 @@ const API_BASE = (import.meta?.env?.VITE_API_BASE ?? "").replace(/\/$/, "");
 export function useApi(base = API_BASE) {
    const LLMchat = async ({purpose, message, session_id}) => {
       console.log({purpose, message, session_id});
+      const sid = String(session_id);
       const res = await fetch(`${base}/api/chat`, {
          method: "POST",
          headers: { "Content-Type": "application/json" },
          body: JSON.stringify({ 
             purpose, 
             message, 
-            session_id }),
+            session_id: sid
+         }),
       });
       if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
       return res.json();

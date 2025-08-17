@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, HTTPException
 from fastapi.responses import JSONResponse, PlainTextResponse
 import os, sqlite3
 
@@ -31,8 +31,11 @@ def chat(payload: ChatMsg):
     func = ChatRoutes.functions.get(payload.purpose)
     try:
         raw = func(message=payload.message, session_id=payload.session_id)
+        if not func:
+            raise HTTPException(status_code=400, detail=f"Unknown purpose '{payload.purpose}'")
+        
         obj = coerce_model_json(raw)
-
+        
         # If obj["draft"] exists and is itself a JSON string, parse that too
         if isinstance(obj, dict) and "draft" in obj:
             draft = obj.get("draft")
