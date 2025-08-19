@@ -15,6 +15,8 @@
 # - if body_md does not have content, simply display messages, with no option
 #   to continue
 
+import sqlite3
+
 from courses.database import get_single_lesson, update_lesson_sql
 from llm_operations.course_teaching.lesson_generator import generate_lesson, generate_lesson_summary
 from llm_operations.course_teaching.lesson_helpers import iterate_body_md, answer_lesson_question 
@@ -28,7 +30,8 @@ class LessonSessions:
         if lesson is not None:
             return lesson
         else:
-            LessonSessions._sessions[lesson_id] = get_single_lesson(lesson_id)
+            with sqlite3.connect(DB_PATH) as con:
+                LessonSessions._sessions[lesson_id] = get_single_lesson(lesson_id)
             return LessonSessions._sessions[lesson_id]
 
     @staticmethod
@@ -37,7 +40,8 @@ class LessonSessions:
 
     @staticmethod
     def push_to_sql(lesson):
-        update_lesson_sql(lesson)
+        with sqlite3.connect(DB_PATH) as con:
+            update_lesson_sql(con, lesson)
         LessonSessions._sessions = {}
 
 # need to check if LLMChat expects all of the messages or just new ones;
@@ -65,6 +69,7 @@ def iterate_lesson(message: str, session_id: str):
         # the user has clicked "Finish"
         lesson["status"] = 2 # status 2 means lesson is finished
         summary = generate_lesson_summary(lesson)
+        lesson["summary"] = summary
         lesson["messages"].append(summary)
         LessonSession.push_to_SQL(lesson)
         return summary
