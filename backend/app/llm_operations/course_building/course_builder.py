@@ -10,7 +10,7 @@ import json, sqlite3
 from textwrap import dedent
 
 from llm_operations.course_building.build_utilities import _slugify, _validate_draft
-from courses.database import open_db, create_course, add_lesson, create_section, print_course
+from courses.database import open_db, create_course, create_lesson, create_section 
 
 class CourseBuildSession:
     _session = {}
@@ -149,7 +149,7 @@ def approve_course(session_id: str, db_path: str) -> int:
 
                 # nest lessons under their section
                 for l in sec["lessons"]:
-                    add_lesson(
+                    create_lesson(
                         con,
                         course_id=course_id,
                         title=l["title"].strip(),
@@ -159,7 +159,6 @@ def approve_course(session_id: str, db_path: str) -> int:
                     )
 
         reset_draft()
-        print_course(con, course_id)
         return course_id
     finally:
         con.close() 
