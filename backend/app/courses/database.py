@@ -1,6 +1,10 @@
 import sqlite3
 import os
 
+# status is 0, 1, or 2:
+# - 0 = not started
+# - 1 = started
+# - 2 = finished
 SCHEMA = """
 PRAGMA foreign_keys = ON;
 
@@ -8,25 +12,31 @@ CREATE TABLE IF NOT EXISTS courses (
   id          INTEGER PRIMARY KEY,
   slug        TEXT UNIQUE,
   title       TEXT NOT NULL,
-  description TEXT NOT NULL
+  description TEXT NOT NULL,
+  status      INTEGER NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS sections (
   id        INTEGER PRIMARY KEY,
   course_id INTEGER NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
   title     TEXT NOT NULL,
+  summary   TEXT,
   position  INTEGER NOT NULL,
+  status    INTEGER NOT NULL,
   UNIQUE(course_id, position)
 );
 
 CREATE TABLE IF NOT EXISTS lessons (
-  id         INTEGER PRIMARY KEY,
-  course_id  INTEGER NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
-  section_id INTEGER REFERENCES sections(id) ON DELETE SET NULL,
-  title      TEXT NOT NULL,
-  description TEXT NOT NULL,
-  body_md    TEXT,
-  position   INTEGER NOT NULL,
+  id            INTEGER PRIMARY KEY,
+  course_id     INTEGER NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+  section_id    INTEGER REFERENCES sections(id) ON DELETE SET NULL,
+  title         TEXT NOT NULL,
+  description   TEXT NOT NULL,
+  body_md       TEXT,
+  messages      TEXT,
+  summary       TEXT,
+  position      INTEGER NOT NULL,
+  status        INTEGER NOT NULL,
   UNIQUE(section_id, position)
 );
 
@@ -37,6 +47,7 @@ CREATE TABLE IF NOT EXISTS exercises (
   prompt     TEXT NOT NULL,
   solution   TEXT,
   position   INTEGER NOT NULL,
+  status     INTEGER NOT NULL,
   UNIQUE(course_id, position)
 );
 
@@ -46,6 +57,7 @@ CREATE TABLE IF NOT EXISTS quizzes (
   section_id INTEGER REFERENCES sections(id) ON DELETE SET NULL,
   title      TEXT NOT NULL,
   position   INTEGER NOT NULL,
+  status     INTEGER NOT NULL,
   UNIQUE(course_id, position)
 );
 
@@ -55,6 +67,7 @@ CREATE TABLE IF NOT EXISTS projects (
   section_id INTEGER REFERENCES sections(id) ON DELETE SET NULL,
   brief      TEXT NOT NULL,
   position   INTEGER NOT NULL,
+  status     INTEGER NOT NULL,
   UNIQUE(course_id, position)
 );
 
@@ -88,61 +101,28 @@ def open_db(path):
 
 def create_course(con, title, slug=None, description=None):
     cur = con.execute(
-            "INSERT INTO courses(title, slug, description) VALUES (?, ?, ?)",
+            "INSERT INTO courses(title, slug, description, status) VALUES (?, ?, ?, 0)",
             (title, slug, description),
     )
 
     print(f"Created {title}")
     return cur.lastrowid
 
-def add_lesson(con, course_id, title, description, position, body_md = None, section_id=None):
-    con.execute(
-            "INSERT INTO lessons(course_id, section_id, title, description, body_md, position)"
-            " VALUES (?, ?, ?, ?, ?, ?)",
-            (course_id, section_id, title, description, body_md, position),
-    )
-    print(f"Added lesson {title}")
-
 def create_section(con, course_id, title, position):
     cur = con.execute(
-            "INSERT INTO sections(course_id, title, position) VALUES (?, ?, ?)",
+            "INSERT INTO sections(course_id, title, position, status) VALUES (?, ?, ?, 0)",
             (course_id, title, position),
     )
     print(f"Added section {title}")
     return cur.lastrowid
 
-def print_course(con, course_id: int):
-    print("\n=== COURSE ===")
-    row = con.execute(
-        "SELECT id, title, slug, description FROM courses WHERE id = ?",
-        (course_id,),
-    ).fetchone()
-    if not row:
-        print(f"No course found with id={course_id}")
-        return
-    cid, title, slug, desc = row
-    print(f"ID: {cid}\nTitle: {title}\nSlug: {slug}\nDescription: {desc or ''}")
-
-    print("\n--- SECTIONS ---")
-    sections = con.execute(
-        "SELECT id, title, position FROM sections WHERE course_id = ? ORDER BY position",
-        (cid,),
-    ).fetchall()
-    if not sections:
-        print("(none)")
-    for sid, stitle, spos in sections:
-        print(f"[{sid}] {stitle} (pos {spos})")
-
-    print("\n--- LESSONS ---")
-    lessons = con.execute(
-        """SELECT id, title, position, section_id
-           FROM lessons
-           WHERE course_id = ?
-           ORDER BY position""",
-        (cid,),
-    ).fetchall()
-    for lid, ltitle, lpos, sec_id in lessons:
-        print(f"[{lid}] {ltitle} (pos {lpos}, section {sec_id})")
+def create_lesson(con, course_id, title, description, position, body_md = None, section_id=None):
+    con.execute(
+            "INSERT INTO lessons(course_id, section_id, title, description, body_md, position, status)"
+            " VALUES (?, ?, ?, ?, ?, ?, 0)",
+            (course_id, section_id, title, description, body_md, position),
+    )
+    print(f"Added lesson {title}")
 
 def get_all_courses(con: sqlite3.Connection): 
     # eventually take a user_id argument
@@ -157,7 +137,8 @@ def get_all_courses(con: sqlite3.Connection):
         c.id                       AS id,
         c.title                    AS title,
         c.description              AS description,
-        
+        c.status                   AS status,
+
         (SELECT COUNT(*)
          FROM sections s
          WHERE s.course_id = c.id) AS section_count,
@@ -181,6 +162,7 @@ def get_sections(con: sqlite3.Connection, course_id: int):
     SELECT
         s.id                       AS id,
         s.title                    AS title,
+        s.status                   AS status,
         
         (SELECT COUNT(*)
          FROM lessons l
@@ -202,7 +184,8 @@ def get_lessons(con: sqlite3.Connection, section_id: int):
     SELECT
         l.id                       AS id,
         l.title                    AS title,
-        l.description              AS description
+        l.description              AS description,
+        l.status                   AS status
     FROM lessons AS l
     WHERE l.section_id = ?
     ORDER BY l.position;
@@ -210,3 +193,148 @@ def get_lessons(con: sqlite3.Connection, section_id: int):
     rows = con.execute(sql, (section_id,)).fetchall()
 
     return [dict(r) for r in rows]
+
+def get_single_lesson(con: sqlite3.Connection, lesson_id: int):
+    con.row_factory = sqlite3.Row
+
+    sql = f"""
+    SELECT
+        l.course_id     AS course_id,
+        l.section_id    AS section_id,
+        l.title         AS title,
+        l.description   AS description,
+        l.body_md       AS body_md,
+        l.messages      AS messages,
+        l.summary       AS summary,
+        l.status        AS status
+    FROM lessons AS l
+    WHERE l.id = ?
+    """
+    lesson = con.execute(sql, (lesson_id,)).fetchone()
+
+    return lesson
+
+def update_lesson_sql(con: sqlite3.Connection, l: dict):
+        
+    sql = f"""
+    UPDATE lessons
+    SET
+        course_id   = ?,
+        section_id  = ?,
+        title       = ?,
+        description = ?,
+        body_md     = ?,
+        messages    = ?,
+        summary     = ?,
+        status      = ?
+    WHERE id = ?
+    """
+    con.execute(sql, (
+        l["course_id"], l["section_id"], l["title"],
+        l["description"], l["body_md"], l["messages"],
+        l["summary"], l["status"]
+        )
+    )
+
+    print(f"Updated lesson {l.title}")
+
+def get_course_info(con: sqlite3.Connection, course_id: int):
+    con.row_factory = sqlite3.Row
+
+    sql = f"""
+    SELECT
+        c.title         AS title,
+        c.description   AS description,
+    FROM course AS c
+    WHERE c.id = ?
+    """
+    course = con.execute(sql, (course_id,)).fetchone()
+
+    return course["title"], course["description"]
+
+def get_summaries(con: sqlite3.Connection, c_id: int, s_id: int, l_pos: int):
+# if lesson's position = 1 and its section's position = 1,
+# this is the start of the course
+#
+# if lesson's position = 1 and its section's position > 1,
+# pull summaries from previous section(s)
+#
+# if lesson's position > 1 and its section's position = 1,
+# pull summaries from previous lessons in the section
+#
+# if lesson's position > 1 and its section's position > 1,
+# pull summaries from previous lessons in the section and previous sections
+    con.row_factory = sqlite3.Row
+
+    row = con.execute(
+        """
+        SELECT position AS sec_pos
+        FROM sections
+        WHERE id = ?
+        """,
+        (s_id,),
+    ).fetchone()
+
+    if row is None:
+        return ""
+
+    sec_pos = row["sec_pos"]
+
+    if sec_pos == 1 and l_pos == 1:
+        return ""
+
+    rows = con.execute(
+        """
+        WITH cur AS (
+            SELECT id AS section_id, course_id, position AS sec_pos
+            FROM sections
+            WHERE id = :sid
+        ),
+        prev_sections AS (
+            SELECT s.id AS section_id, s.position AS sec_pos
+            FROM sections s
+            JOIN cur ON s.course_id = cur.course_id
+            WHERE s.position < cur.sec_pos
+        ),
+        stream AS (
+            
+            SELECT
+                s.position  AS sec_pos,
+                0           AS kind_rank,
+                NULL        AS lesson_pos,
+                s.summary   AS text
+            FROM sections s
+            JOIN prev_sections ps ON ps.section_id = s.id
+            
+            UNION ALL
+
+            SELECT
+                cur.sec_pos AS sec_pos,
+                1           AS kind_rank,
+                l.position  AS lesson_pos,
+                l.summary   AS text
+            FROM lessons l
+            JOIN cur ON l.section_id = cur.section_id
+            WHERE l.position < :lpos
+        )
+        SELECT sec_pos, kind_rank, lesson_pos, text
+        FROM stream
+        ORDER BY sec_pos ASC, kind_rank ASC, lesson_pos ASC
+        """,
+        {"sid": s_id, "lpos": l_pos},
+    ).fetchall()
+    
+    pieces = []
+    for r in rows:
+        txt: Optional[str] = r["text"]
+        if txt is None:
+            continue
+        t = txt.strip()
+        if t:
+            pieces.append(t)
+
+    return "\n\n".join(pieces)
+
+def get_future_lessons(con: sqlite3.Connection, c_id: int, s_id: int, l_pos: int):
+# pull all titles from lessons after l_pos to the end of the section
+    pass
