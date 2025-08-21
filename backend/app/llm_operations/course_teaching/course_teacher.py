@@ -18,7 +18,7 @@
 import sqlite3
 
 from courses.database import get_single_lesson, update_lesson_sql
-from llm_operations.course_teaching.lesson_generator import generate_lesson, generate_lesson_summary
+from llm_operations.course_teaching.lesson_generator import generate_lesson, generate_summary
 from llm_operations.course_teaching.lesson_helpers import iterate_body_md, answer_lesson_question 
 
 class LessonSessions:
@@ -68,7 +68,7 @@ def iterate_lesson(message: str, session_id: str):
     elif message == "Finish":
         # the user has clicked "Finish"
         lesson["status"] = 2 # status 2 means lesson is finished
-        summary = generate_lesson_summary(lesson)
+        summary = generate_summary(lesson["messages"])
         lesson["summary"] = summary
         lesson["messages"].append(summary)
         LessonSession.push_to_SQL(lesson)
@@ -85,13 +85,12 @@ def iterate_lesson(message: str, session_id: str):
         # needs to be added to lesson["messages"]
         lesson["body_md"], return_message = iterate_body_md(lesson["body_md"])
         lesson["messages"].append(return_message)
-
     else:
         # if none of the former options are the case, then the user has
         # asked a question; answer_lesson_question will append the user's
         # message and the assistant's response to lesson["messages"]
+        return_message = answer_lesson_question(message, lesson["messages"])
         lesson["messages"].append(message)
-        return_message = answer_lesson_question(message)
         lesson["messages"].append(return_message)
     
     # update the lesson
