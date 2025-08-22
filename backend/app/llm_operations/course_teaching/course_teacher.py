@@ -58,44 +58,39 @@ def iterate_lesson(message: str, session_id: str):
 
     return_message = ""
     
-    match message:
-        case "Return":
-            # the user is returning to a lesson, or the lesson has finished
-            # (status set to 2 if lesson is finished); return all messages
-            return lesson["messages"]
-        case "Leave":
-            # the user is leaving the session
-            if lesson["status"] == 1:
-                # if the lesson has started, but not finished
-                LessonSession.push_to_SQL(lesson)
-            return "Goodbye!"       
-        case "Finish":
-            # the user has clicked "Finish"
-            lesson["status"] = 2 # status 2 means lesson is finished
-            summary = summarize_lesson(lesson["messages"])
-            lesson["summary"] = summary
-            lesson["messages"] += summary
+    if message == "Leave":
+        # the user is leaving the session
+        if lesson["status"] == 1:
+            # if the lesson has started, but not finished
             LessonSession.push_to_SQL(lesson)
-            return summary
-        case "Start":
-            # the user is starting a lesson for the first time
-            # (status set to 0 if lesson has not been started)
-            lesson["body_md"] = generate_lesson(lesson)
-            lesson["status"] = 1 # status 1 means lesson has started
-            lesson["body_md"], return_message = iterate_body_md(lesson["body_md"])
-            lesson["messages"] += return_message
-        case "Continue":
-            # the user is continuing a lesson, so the next part of body_md
-            # needs to be added to lesson["messages"]
-            lesson["body_md"], return_message = iterate_body_md(lesson["body_md"])
-            lesson["messages"] += return_message
-        case _:
-            # if none of the former options are the case, then the user has
-            # asked a question; answer_lesson_question will append the user's
-            # message and the assistant's response to lesson["messages"]
-            return_message = answer_lesson_question(message, lesson["messages"])
-            lesson["messages"] += message
-            lesson["messages"] += return_message
+        return "Goodbye!"       
+    elif message == "Finish":
+        # the user has clicked "Finish"
+        lesson["status"] = 2 # status 2 means lesson is finished
+        summary = summarize_lesson(lesson["messages"])
+        lesson["summary"] = summary
+        lesson["messages"] += summary
+        LessonSession.push_to_SQL(lesson)
+        return summary
+    elif message == "Start":
+        # the user is starting a lesson for the first time
+        # (status set to 0 if lesson has not been started)
+        lesson["body_md"] = generate_lesson(lesson)
+        lesson["status"] = 1 # status 1 means lesson has started
+        lesson["body_md"], return_message = iterate_body_md(lesson["body_md"])
+        lesson["messages"] += return_message
+    elif message == "Return" || message == "Continue":
+        # the user is continuing a lesson, so the next part of body_md
+        # needs to be added to lesson["messages"]
+        lesson["body_md"], return_message = iterate_body_md(lesson["body_md"])
+        lesson["messages"] += return_message
+    else:
+        # if none of the former options are the case, then the user has
+        # asked a question; answer_lesson_question will append the user's
+        # message and the assistant's response to lesson["messages"]
+        return_message = answer_lesson_question(message, lesson["messages"])
+        lesson["messages"] += message
+        lesson["messages"] += return_message
     
     # update the lesson
     LessonSession.update_lesson(lid, lesson)
