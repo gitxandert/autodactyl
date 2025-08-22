@@ -24,9 +24,9 @@ export default function Lessons() {
    }
    
    const sectionId = parsed;
-   const { listLessons } = useApi();
+   const { listLessons, LLMChat } = useApi();
    const [lessons, setLessons] = useState([]);
-   const [error, setError] = useState(null);
+   const [error,   setError  ] = useState(null);
 
    useEffect(() => {
       (async () => {
@@ -39,15 +39,44 @@ export default function Lessons() {
       })();
    }, [listLessons]);
 
-   const [currentLessonId, setCurrentLessonId] = useState(null);
-   const [description, setDescription]         = useState("");
-   const [showChat, setShowChat]               = useState(false);
+   const [currentLesson, setCurrentLesson] = useState(null);
+   const [description,   setDescription  ] = useState("");
+   const [showChat,      setShowChat     ] = useState(false);
 
    const showDescription = (id) =>  {
-      if (!showChat){
+      if (!showChat) {
          const lesson = lessons.find(l => l.id === id);
-         setCurrentLessonId(lesson?.id ?? null);
+         setCurrentLesson(lesson);
          setDescription(lesson?.description ?? "");
+      }
+   }
+   
+   const [btnFunction, setBtnFunction]  = useState("")
+   const [btnDisabled, setBtnDisabled]  = useState(false);
+   const [busy,        setBusy       ]  = useState(false);
+   
+   const setChatButton = () => {
+      if (!showChat) {
+         if (currentLesson.status == 0) {
+            setBtnFunction("Start");
+         }
+         else {
+            setBtnFunction("Return");
+         }
+      }
+      else {
+         if (currentLesson.status == 1) {
+            if (currentLesson.body_md != "") {
+               setBtnFunction("Continue");
+            }
+            else {
+               setBtnFunction("Finish");
+            }
+         }
+         else {
+            setBtnFunction("Completed");
+            setBtnDisabled(true);
+         }
       }
    }
 
@@ -65,7 +94,7 @@ export default function Lessons() {
          <div className="lessons-list">
             <ol className="dynamicList">
                {lessons.map((l) => (
-                  <li key={l.id} onClick={() => showDescription(l.id)} style={l.id === currentLessonId ? {border: "2px solid cyan"} : {border: "none"}}>{l.title}</li>
+                  <li key={l.id} onClick={() => showDescription(l.id)} style={l.id === currentLesson["id"] ? {border: "2px solid cyan"} : {border: "none"}}>{l.title}</li>
                ))}
             </ol>
          </div>
@@ -75,12 +104,13 @@ export default function Lessons() {
                <>
                   <Chat
                    purpose={"learn"}
-                   sessionId={currentLessonId}
-                   disabled={!currentLessonId}
+                   sessionId={currentLesson.id}
+                   disabled={!currentLesson.id}
                    height={260}
+                   initialMessages=currentLesson.messages
                    footerExtras={(
-                      <button /* onClick={continue} disabled={!canContinue || busy} */>
-                         Continue
+                      <button onClick={sendBtnMess} disabled={btnDisabled || busy}>
+                        {btnFunction}
                       </button>
                    )}
                    />
@@ -88,8 +118,9 @@ export default function Lessons() {
                </>
             ) : description ? (
                <>
+                  <script>setChatButton</script>
                   <p>{description}</p>
-                  <button onClick={() => setShowChat(true)}>Start</button>
+                  <button onClick={sendBtnMess}>{btnFunction}</button>
                </>
             ) : (
                <em>Select a lesson to see its description</em>
