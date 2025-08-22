@@ -8,22 +8,25 @@ export type ChatMessage = {
 };
 
 export type ChatProps = {
-  /** specify if "build", "learn", etc. */
-  purpose: string;
-  /** unique for every chat */
-  sessionId: string;
-  /** fixed height of the scroll area (px) */
-  height?: number;
-  /** placeholder text for the input */
-  placeholder?: string;
-  /** disable input/buttons while an in-flight request is pending */
-  disabled?: boolean;
-  /** optional initial history to seed the transcript */
+  /* specify if "build", "learn", etc. */
+  purpose:          string;
+  /* unique for every chat */
+  sessionId:        string;
+  /* fixed height of the scroll area (px) */
+  height?:          number;
+  /* placeholder text for the input */
+  placeholder?:     string;
+  /* disable input/buttons while an in-flight request is pending */
+  disabled?:        boolean;
+  /* optional initial history to seed the transcript */
   initialMessages?: ChatMessage[];
-  /** called after a successful reply is received */
-  onReply?: (reply: ChatMessage, all: ChatMessage[], server: any) => void;
-  /** allows for extra controls in the footer (e.g., Approve & Save) */
-  footerExtras?: React.ReactNode;
+  /* called after a successful reply is received */
+  onReply?:         (reply: ChatMessage, all: ChatMessage[], server: any) => void;
+  /* allows for extra controls in the footer (e.g., Approve & Save) */
+  footerExtras?:    React.ReactNode;
+  /* used for Lesson chat */
+  specialBtn?:     boolean;
+  specialMess?:     string;
 };
 
 export default function Chat({
@@ -35,6 +38,8 @@ export default function Chat({
   disabled = false,
   onReply,
   footerExtras,
+  specialBtn = false,
+  specialMess
 }: ChatProps) {
   const { LLMchat } = useApi();
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
@@ -116,6 +121,13 @@ export default function Chat({
     }
   }
 
+  function specialSend() {
+    if (specialMess != "Completed") {
+      setInput(specialMess);
+      void send();
+    }
+  }
+
   function onKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
       e.preventDefault();
@@ -183,6 +195,18 @@ export default function Chat({
         >
           {busy ? "Working…" : "Send"}
         </button>
+        {specialBtn ?
+          <button
+            onClick={() => void specialSend()}
+            disabled={busy || disabled}
+            style={{
+              ...btnStyle,
+              background: busy || disabled ? "#9fb7aa" : "#2563eb",
+            }}
+          >
+            {specialMess}
+          </button> :
+        }
         <div style={{ fontSize: 12, opacity: 0.7 }}>Tip: Ctrl/Cmd + Enter to send.</div>
         <div style={{ marginLeft: "auto" }}>{footerExtras}</div>
       </div>
@@ -226,45 +250,3 @@ function MessageBubble({ msg }: { msg: ChatMessage }) {
     </div>
   );
 }
-
-/* ------------------------------------------------------
- * Example usage on your Builder page
- * ------------------------------------------------------
- * Replace your current Activity + textarea stack with:
- *
- * <section style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 24 }}>
- *   <div>
- *     <h2 style={{ fontSize: 18, marginBottom: 8 }}>Chat</h2>
- *     <Chat
- *       purpose={"build"}
- *       sessionId={sessionId}
- *       height={260}
- *       footerExtras={(
- *         <button onClick={approve} disabled={!canApprove || busy} style={{ background: canApprove && !busy ? "#0b8457" : "#9fb7aa", color: "#fff", border: 0, borderRadius: 8, padding: "8px 12px" }}>
- *           Approve & Save
- *         </button>
- *       )}
- *       onReply={(reply) => {
- *         // If your server sends back structured drafts sometimes, you could parse/update here
- *         // try { setDraft(JSON.parse(reply.content)); } catch {}
- *       }}
- *     />
- *   </div>
- *   <div>
- *     <h2 style={{ fontSize: 18, marginBottom: 8 }}>Current Draft</h2>
- *     <pre style={{ height: 260, overflow: "auto", border: "1px solid #eee", borderRadius: 8, padding: 10, background: "#111", color: "#e6e6e6" }}>
- *       {draft ? pretty(draft) : "—"}
- *     </pre>
- *   </div>
- * </section>
- *
- * ------------------------------------------------------
- * Example usage on your Lessons page
- * ------------------------------------------------------
- * <Chat
- *   purpose={"learn"}
- *   sessionId={sessionId}
- *   height={320}
- *   placeholder="Ask a question about this lesson…"
- * />
- */

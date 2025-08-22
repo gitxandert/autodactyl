@@ -24,7 +24,7 @@ export default function Lessons() {
    }
    
    const sectionId = parsed;
-   const { listLessons, LLMChat } = useApi();
+   const { listLessons } = useApi();
    const [lessons, setLessons] = useState([]);
    const [error,   setError  ] = useState(null);
 
@@ -42,40 +42,37 @@ export default function Lessons() {
    const [currentLesson, setCurrentLesson] = useState(null);
    const [description,   setDescription  ] = useState("");
    const [showChat,      setShowChat     ] = useState(false);
+   const [specialMess, setSpecialMess] = useState("");
 
-   const showDescription = (id) =>  {
+   function showDescription(id) {
       if (!showChat) {
          const lesson = lessons.find(l => l.id === id);
          setCurrentLesson(lesson);
          setDescription(lesson?.description ?? "");
+         setSpecialMessage();
       }
    }
    
-   const [btnFunction, setBtnFunction]  = useState("")
-   const [btnDisabled, setBtnDisabled]  = useState(false);
-   const [busy,        setBusy       ]  = useState(false);
-   
-   const setChatButton = () => {
+   function setSpecialMessage {
       if (!showChat) {
          if (currentLesson.status == 0) {
-            setBtnFunction("Start");
+            setSpecialMess("Start");
          }
          else {
-            setBtnFunction("Return");
+            setSpecialMess("Return");
          }
       }
       else {
          if (currentLesson.status == 1) {
             if (currentLesson.body_md != "") {
-               setBtnFunction("Continue");
+               setSpecialMess("Continue");
             }
             else {
-               setBtnFunction("Finish");
+               setSpecialMess("Finish");
             }
          }
          else {
-            setBtnFunction("Completed");
-            setBtnDisabled(true);
+            setSpecialMess("Completed");
          }
       }
    }
@@ -107,20 +104,19 @@ export default function Lessons() {
                    sessionId={currentLesson.id}
                    disabled={!currentLesson.id}
                    height={260}
-                   initialMessages=currentLesson.messages
-                   footerExtras={(
-                      <button onClick={sendBtnMess} disabled={btnDisabled || busy}>
-                        {btnFunction}
-                      </button>
-                   )}
+                   initialMessages={currentLesson.messages}
+                   onReply={(_, _, _) => {
+                     setSpecialMessage();
+                   }}
+                   specialBtn={true}
+                   specialMess={specialMess}
                    />
                   <button onClick={() => setShowChat(false)}>Back</button>
                </>
             ) : description ? (
                <>
-                  <script>setChatButton</script>
                   <p>{description}</p>
-                  <button onClick={sendBtnMess}>{btnFunction}</button>
+                  <button onClick={() => setShowChat(true)}>Open</button>
                </>
             ) : (
                <em>Select a lesson to see its description</em>
