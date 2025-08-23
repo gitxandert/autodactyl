@@ -205,7 +205,7 @@ export default function Chat({
             }}
           >
             {specialMess}
-          </button> :
+          </button> : <></>  
         }
         <div style={{ fontSize: 12, opacity: 0.7 }}>Tip: Ctrl/Cmd + Enter to send.</div>
         <div style={{ marginLeft: "auto" }}>{footerExtras}</div>

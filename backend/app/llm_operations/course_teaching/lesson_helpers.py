@@ -2,8 +2,10 @@ from langchain_core.prompts import PromptTemplate
 
 from llm_operations.llm_class import LLM
 
-import sqlite3
+import os, sqlite3
 from courses.database import get_course_info, get_summaries, get_future_lessons
+
+DB_PATH = os.environ.get("SQLITE_PATH", "app/courses/database/courses.sqlite")
 
 LESSON_PROMPT = PromptTemplate.from_template("""
 You are teaching a lesson. You rely on the course's title and description and the lesson's title and description, as well as (if provided) previous lesson/section summaries and/or future lessons.
@@ -24,23 +26,30 @@ Future lessons: {future_lessons}
 
 def generate_lesson(l: dict):
     with sqlite3.connect(DB_PATH) as con:
+        print("getting course info")
         c_title, c_description = get_course_info(con, l["course_id"])
+        print("getting summaries")
+        print(f"{l}")
         summaries = get_summaries(con, 
                                   l["course_id"],
                                   l["section_id"], 
                                   l["position"])
+        print("getting future lessons")
         future_lessons = get_future_lessons(con, 
+                                            l["course_id"],
                                             l["section_id"], 
                                             l["position"])
 
+    description = l["description"]
+    title = l["title"]
     llm = LLM.get_llm()
     chain = LESSON_PROMPT | llm
     result = chain.invoke({
-        "c_title": c_title,
         "c_description": c_description,
-        "l_title": l["title"],
-        "l_descripton": l["description"],
+        "c_title": c_title,
         "future_lessons": future_lessons,
+        "l_descripton": description,
+        "l_title": title,
         "summaries": summaries
     })
 

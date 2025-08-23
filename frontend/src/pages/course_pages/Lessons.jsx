@@ -39,21 +39,20 @@ export default function Lessons() {
       })();
    }, [listLessons]);
 
-   const [currentLesson, setCurrentLesson] = useState(null);
+   const [currentLesson, setCurrentLesson] = useState({});
    const [description,   setDescription  ] = useState("");
    const [showChat,      setShowChat     ] = useState(false);
    const [specialMess, setSpecialMess] = useState("");
 
-   function showDescription(id) {
+   function showDescription(l) {
       if (!showChat) {
-         const lesson = lessons.find(l => l.id === id);
-         setCurrentLesson(lesson);
-         setDescription(lesson?.description ?? "");
+         setCurrentLesson(l);
+         setDescription(l?.description ?? "");
          setSpecialMessage();
       }
    }
    
-   function setSpecialMessage {
+   function setSpecialMessage() {
       if (!showChat) {
          if (currentLesson.status == 0) {
             setSpecialMess("Start");
@@ -91,7 +90,7 @@ export default function Lessons() {
          <div className="lessons-list">
             <ol className="dynamicList">
                {lessons.map((l) => (
-                  <li key={l.id} onClick={() => showDescription(l.id)} style={l.id === currentLesson["id"] ? {border: "2px solid cyan"} : {border: "none"}}>{l.title}</li>
+                  <li key={l.id} onClick={() => showDescription(l)} style={l.id === currentLesson["id"] ? {border: "2px solid cyan"} : {border: "none"}}>{l.title}</li>
                ))}
             </ol>
          </div>
@@ -105,7 +104,7 @@ export default function Lessons() {
                    disabled={!currentLesson.id}
                    height={260}
                    initialMessages={currentLesson.messages}
-                   onReply={(_, _, _) => {
+                   onReply={(a, b, c) => {
                      setSpecialMessage();
                    }}
                    specialBtn={true}

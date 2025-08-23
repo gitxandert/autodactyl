@@ -196,7 +196,8 @@ def get_lessons(con: sqlite3.Connection, section_id: int):
 
 def get_single_lesson(con: sqlite3.Connection, lesson_id: int):
     con.row_factory = sqlite3.Row
-
+    
+    print("Made it to get_single_lesson")
     sql = f"""
     SELECT
         l.course_id     AS course_id,
@@ -206,13 +207,15 @@ def get_single_lesson(con: sqlite3.Connection, lesson_id: int):
         l.body_md       AS body_md,
         l.messages      AS messages,
         l.summary       AS summary,
+        l.position      AS position,
         l.status        AS status
     FROM lessons AS l
     WHERE l.id = ?
     """
     lesson = con.execute(sql, (lesson_id,)).fetchone()
 
-    return lesson
+    print("Made it past get_single_lesson")
+    return dict(lesson) 
 
 def update_lesson_sql(con: sqlite3.Connection, l: dict):
         
@@ -244,8 +247,8 @@ def get_course_info(con: sqlite3.Connection, course_id: int):
     sql = f"""
     SELECT
         c.title         AS title,
-        c.description   AS description,
-    FROM course AS c
+        c.description   AS description
+    FROM courses AS c
     WHERE c.id = ?
     """
     course = con.execute(sql, (course_id,)).fetchone()
@@ -265,7 +268,8 @@ def get_summaries(con: sqlite3.Connection, c_id: int, s_id: int, l_pos: int):
 # if lesson's position > 1 and its section's position > 1,
 # pull summaries from previous lessons in the section and previous sections
     con.row_factory = sqlite3.Row
-
+    
+    print(f"{s_id}")
     row = con.execute(
         """
         SELECT position AS sec_pos
@@ -279,7 +283,8 @@ def get_summaries(con: sqlite3.Connection, c_id: int, s_id: int, l_pos: int):
         return ""
 
     sec_pos = row["sec_pos"]
-
+    
+    print(f"sec_pos: {sec_pos} l_pos: {l_pos}")
     if sec_pos == 1 and l_pos == 1:
         return ""
 

@@ -15,10 +15,12 @@
 # - if body_md does not have content, simply display messages, with no option
 #   to continue
 
-import sqlite3
+import os, sqlite3
 
 from courses.database import get_single_lesson, update_lesson_sql
-from llm_operations.course_teaching.lesson_generator import generate_lesson, answer_lesson_question, summarize_lesson
+from llm_operations.course_teaching.lesson_helpers import generate_lesson, answer_lesson_question, summarize_lesson
+
+DB_PATH = os.environ.get("SQLITE_PATH", "app/courses/database/courses.sqlite")
 
 class LessonSession:
     _session = {}
@@ -30,7 +32,7 @@ class LessonSession:
             return lesson
         else:
             with sqlite3.connect(DB_PATH) as con:
-                LessonSession._session[lesson_id] = get_single_lesson(lesson_id)
+                LessonSession._session[lesson_id] = get_single_lesson(con, lesson_id)
             return LessonSession._session[lesson_id]
 
     @staticmethod
@@ -44,6 +46,7 @@ class LessonSession:
         LessonSession._session = {}
 
 def iterate_body_md(body_md: str):
+    print(f"{body_md}")
     parts = body_md.split("\n\n", 1)
     first_paragraph = parts[0]
     rest = parts[1] if len(parts) > 1 else ""
@@ -52,7 +55,7 @@ def iterate_body_md(body_md: str):
 def iterate_lesson(message: str, session_id: str):
     # convert session_id to int for SQL
     lid = int(session_id)
-    
+
     # get lesson from LessonSessions (pulls lesson from SQL if not stored)
     lesson = LessonSession.get_lesson(lid)
 
@@ -75,11 +78,12 @@ def iterate_lesson(message: str, session_id: str):
     elif message == "Start":
         # the user is starting a lesson for the first time
         # (status set to 0 if lesson has not been started)
+        print("generating lesson")
         lesson["body_md"] = generate_lesson(lesson)
         lesson["status"] = 1 # status 1 means lesson has started
         lesson["body_md"], return_message = iterate_body_md(lesson["body_md"])
         lesson["messages"] += return_message
-    elif message == "Return" || message == "Continue":
+    elif message == "Return" or  message == "Continue":
         # the user is continuing a lesson, so the next part of body_md
         # needs to be added to lesson["messages"]
         lesson["body_md"], return_message = iterate_body_md(lesson["body_md"])
