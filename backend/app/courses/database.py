@@ -185,6 +185,7 @@ def get_lessons(con: sqlite3.Connection, section_id: int):
         l.id                       AS id,
         l.title                    AS title,
         l.description              AS description,
+        l.messages                 AS messages,
         l.status                   AS status
     FROM lessons AS l
     WHERE l.section_id = ?
@@ -200,6 +201,7 @@ def get_single_lesson(con: sqlite3.Connection, lesson_id: int):
     print("Made it to get_single_lesson")
     sql = f"""
     SELECT
+        l.id            AS id,
         l.course_id     AS course_id,
         l.section_id    AS section_id,
         l.title         AS title,
@@ -218,7 +220,8 @@ def get_single_lesson(con: sqlite3.Connection, lesson_id: int):
     return dict(lesson) 
 
 def update_lesson_sql(con: sqlite3.Connection, l: dict):
-        
+    
+    print(l.keys())
     sql = f"""
     UPDATE lessons
     SET
@@ -235,11 +238,9 @@ def update_lesson_sql(con: sqlite3.Connection, l: dict):
     con.execute(sql, (
         l["course_id"], l["section_id"], l["title"],
         l["description"], l["body_md"], l["messages"],
-        l["summary"], l["status"]
+        l["summary"], l["status"], l["id"]
         )
     )
-
-    print(f"Updated lesson {l.title}")
 
 def get_course_info(con: sqlite3.Connection, course_id: int):
     con.row_factory = sqlite3.Row
