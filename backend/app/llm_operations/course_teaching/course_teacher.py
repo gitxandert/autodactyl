@@ -74,7 +74,7 @@ def iterate_lesson(message: str, session_id: str):
         lesson["summary"] = summary
         lesson["messages"] += summary
         LessonSession.push_to_sql(lesson)
-        return summary
+        return {"response": summary}
     elif message == "Start":
         # the user is starting a lesson for the first time
         # (status set to 0 if lesson has not been started)

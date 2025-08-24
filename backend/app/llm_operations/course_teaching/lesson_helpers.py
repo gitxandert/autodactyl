@@ -87,3 +87,8 @@ def summarize_lesson(messages: str):
     })
 
     return result.content
+
+def format_as_ChatMsg(mid: int, role: str, content: str):
+    return {"id": mid,
+            "role": role,
+            "content": content}
