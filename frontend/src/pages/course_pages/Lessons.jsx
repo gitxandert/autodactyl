@@ -50,19 +50,23 @@ export default function Lessons() {
          setDescription(l?.description ?? "");
          setSpecialMessage();
       }
+      console.log(currentLesson);
    }
    
    function setSpecialMessage() {
       if (!showChat) {
-         if (currentLesson.status == 0) {
+         if (currentLesson['status'] == 0) {
             setSpecialMess("Start");
          }
+         else if (currentLesson['status'] == 1) {
+            setSpecialMess("Resume");
+         }
          else {
-            setSpecialMess("Return");
+            setSpecialMess("Revisit");
          }
       }
       else {
-         if (currentLesson.status == 1) {
+         if (currentLesson['status'] == 1) {
             if (currentLesson.body_md != "") {
                setSpecialMess("Continue");
             }
