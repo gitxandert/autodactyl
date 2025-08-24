@@ -15,7 +15,7 @@
 # - if body_md does not have content, simply display messages, with no option
 #   to continue
 
-import os, sqlite3
+import os, sqlite3, json
 
 from courses.database import get_single_lesson, update_lesson_sql
 from llm_operations.course_teaching.lesson_helpers import generate_lesson, answer_lesson_question, summarize_lesson
@@ -72,7 +72,9 @@ def iterate_lesson(message: str, session_id: str):
         lesson["status"] = 2 # status 2 means lesson is finished
         summary = summarize_lesson(lesson["messages"])
         lesson["summary"] = summary
-        lesson["messages"] += summary
+        lesson["messages"] = json.dumps(
+                json.loads(lesson["messages"] + [format_as_ChatMsg(lid, "assistant", summary)]
+        )
         LessonSession.push_to_sql(lesson)
         return {"response": summary}
     elif message == "Start":
@@ -82,19 +84,27 @@ def iterate_lesson(message: str, session_id: str):
         lesson["body_md"] = generate_lesson(lesson)
         lesson["status"] = 1 # status 1 means lesson has started
         lesson["body_md"], return_message = iterate_body_md(lesson["body_md"])
-        lesson["messages"] = return_message
+        lesson["messages"] = json.dumps(
+                json.loads(lesson["messages"] + [format_as_ChatMsg(lid, "application", return_message)]
+        )
     elif message == "Return" or  message == "Continue":
         # the user is continuing a lesson, so the next part of body_md
         # needs to be added to lesson["messages"]
         lesson["body_md"], return_message = iterate_body_md(lesson["body_md"])
-        lesson["messages"] += return_message
+        lesson["messages"] = json.dumps(
+                json.loads(lesson["messages"] + [format_as_ChatMsg(lid, "application", return_message)]
+        )
     else:
         # if none of the former options are the case, then the user has
         # asked a question; answer_lesson_question will append the user's
         # message and the assistant's response to lesson["messages"]
         return_message = answer_lesson_question(message, lesson["messages"])
-        lesson["messages"] += message
-        lesson["messages"] += return_message
+        lesson["messages"] = json.dumps(
+            json.loads(lesson["messages"] + [format_as_ChatMsg(lid, "user", message)
+        )
+        lesson["messages"] = json.dumps(
+                json.loads(lesson["messages"] + [format_as_ChatMsg(lid, "application", return_message)]
+        )
     
     # update the lesson
     LessonSession.update_lesson(lid, lesson)
