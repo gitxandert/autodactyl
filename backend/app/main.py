@@ -35,7 +35,7 @@ def chat(payload: ChatMsg):
             raise HTTPException(status_code=400, detail=f"Unknown purpose '{payload.purpose}'")
         
         obj = coerce_model_json(raw)
-        
+
         # If obj["draft"] exists and is itself a JSON string, parse that too
         if isinstance(obj, dict) and "draft" in obj:
             draft = obj.get("draft")

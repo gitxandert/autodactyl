@@ -48,7 +48,7 @@ def generate_lesson(l: dict):
         "c_description": c_description,
         "c_title": c_title,
         "future_lessons": future_lessons,
-        "l_descripton": description,
+        "l_description": description,
         "l_title": title,
         "summaries": summaries
     })

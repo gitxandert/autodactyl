@@ -73,7 +73,7 @@ def iterate_lesson(message: str, session_id: str):
         summary = summarize_lesson(lesson["messages"])
         lesson["summary"] = summary
         lesson["messages"] += summary
-        LessonSession.push_to_SQL(lesson)
+        LessonSession.push_to_sql(lesson)
         return summary
     elif message == "Start":
         # the user is starting a lesson for the first time
@@ -82,7 +82,7 @@ def iterate_lesson(message: str, session_id: str):
         lesson["body_md"] = generate_lesson(lesson)
         lesson["status"] = 1 # status 1 means lesson has started
         lesson["body_md"], return_message = iterate_body_md(lesson["body_md"])
-        lesson["messages"] += return_message
+        lesson["messages"] = return_message
     elif message == "Return" or  message == "Continue":
         # the user is continuing a lesson, so the next part of body_md
         # needs to be added to lesson["messages"]
@@ -98,5 +98,6 @@ def iterate_lesson(message: str, session_id: str):
     
     # update the lesson
     LessonSession.update_lesson(lid, lesson)
-
-    return return_message
+    
+    response = {"response": return_message}
+    return response
