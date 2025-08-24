@@ -47,7 +47,8 @@ export default function Chat({
   const [busy, setBusy] = useState(false);
   const [pendingServer, setPendingServer] = useState<any>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
-
+  
+  console.log(messages);
   // Auto-scroll to newest message
   useEffect(() => {
     const el = scrollRef.current;
@@ -75,8 +76,9 @@ export default function Chat({
     []
   );
 
-  async function send() {
-    const text = input.trim();
+  async function send(text="") {
+    if (text == "")
+      text = input.trim();
     if (!text || busy || disabled) return;
 
     const userMsg: ChatMessage = {
@@ -123,8 +125,7 @@ export default function Chat({
 
   function specialSend() {
     if (specialMess != "Completed") {
-      setInput(specialMess);
-      void send();
+      void send(specialMess);
     }
   }
 
