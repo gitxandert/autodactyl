@@ -105,7 +105,6 @@ export default function Lessons() {
                    disabled={!currentLesson.id}
                    height={260}
                    initialMessages={initialMessages}
-                   onReply={setSpecialMessage()}
                    specialBtn={true}
                    specialMess={specialMess}
                    />
