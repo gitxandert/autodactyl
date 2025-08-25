@@ -1,5 +1,5 @@
 /* react */
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
 /* pages */
@@ -50,10 +50,8 @@ export default function Lessons() {
          setDescription(l?.description ?? "");
          setSpecialMessage();
       }
-      console.log(currentLesson);
-   }
-   
-   function setSpecialMessage() {
+   }       
+   const setSpecialMessage = () => {
       if (!showChat) {
          if (currentLesson['status'] == 0) {
             setSpecialMess("Start");
@@ -79,6 +77,17 @@ export default function Lessons() {
          }
       }
    }
+
+   const initialMessages = useMemo(()=> {
+        const raw = currentLesson.messages;
+        if (Array.isArray(raw)) return raw;
+        try {
+          return raw ? JSON.parse(raw) : [];
+        } catch {
+          return [];
+        }
+      }, [currentLesson.id, currentLesson.messages]
+   );
 
    if (error) return <div className="p-4 text-red-500">Error: {error}</div>;
    return (
@@ -107,10 +116,8 @@ export default function Lessons() {
                    sessionId={currentLesson.id}
                    disabled={!currentLesson.id}
                    height={260}
-                   initialMessages={currentLesson.messages}
-                   onReply={(a, b, c) => {
-                     setSpecialMessage();
-                   }}
+                   initialMessages={initialMessages}
+                   onReply={setSpecialMessage}
                    specialBtn={true}
                    specialMess={specialMess}
                    />
