@@ -48,32 +48,20 @@ export default function Lessons() {
       if (!showChat) {
          setCurrentLesson(l);
          setDescription(l?.description ?? "");
-         setSpecialMessage();
+         setSpecialMessage(l["status"], l["body_md"]);
       }
    }       
-   const setSpecialMessage = () => {
+   
+   const setSpecialMessage = (lstatus, lbody_md) => {
       if (!showChat) {
-         if (currentLesson['status'] == 0) {
+         if (lstatus === 0) {
             setSpecialMess("Start");
          }
-         else if (currentLesson['status'] == 1) {
+         else if (lstatus === 1) {
             setSpecialMess("Resume");
          }
          else {
             setSpecialMess("Revisit");
-         }
-      }
-      else {
-         if (currentLesson['status'] == 1) {
-            if (currentLesson.body_md != "") {
-               setSpecialMess("Continue");
-            }
-            else {
-               setSpecialMess("Finish");
-            }
-         }
-         else {
-            setSpecialMess("Completed");
          }
       }
    }
@@ -117,7 +105,7 @@ export default function Lessons() {
                    disabled={!currentLesson.id}
                    height={260}
                    initialMessages={initialMessages}
-                   onReply={setSpecialMessage}
+                   onReply={setSpecialMessage()}
                    specialBtn={true}
                    specialMess={specialMess}
                    />

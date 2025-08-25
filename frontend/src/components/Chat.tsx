@@ -2,9 +2,11 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useApi } from "../api/useApi.jsx";
 
 export type ChatMessage = {
-  id: string;
-  role: "user" | "assistant" | "system";
-  content: string;
+  id:       string;
+  role:     "user" | "assistant" | "system";
+  content:  string;
+  status?:  int;
+  body_md?: string;
 };
 
 export type ChatProps = {
@@ -44,6 +46,7 @@ export default function Chat({
   const { LLMchat } = useApi();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
+  const [specialMessage, setSpecialMessage] = useState(specialMess);
   const [busy, setBusy] = useState(false);
   const [pendingServer, setPendingServer] = useState<any>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
@@ -98,8 +101,14 @@ export default function Chat({
       });
 
       if (!data?.ok) throw new Error(data?.error || "Chat failed");
+      
       const replyText =
-        data?.result?.response ?? data?.reply ?? "";
+        data?.result?.response ??  "";
+      const replyStatus = 
+        data?.result?.status ?? null;
+      const replyBody_md =
+        data?.result?.body_md ?? null;
+
       const asst: ChatMessage = {
         id: `${Date.now()}-a`,
         role: "assistant",
@@ -110,6 +119,19 @@ export default function Chat({
          onReply?.(asst, next, data);
          return next;
       });
+      setSpecialMessage(() => {
+         if (replyStatus === 1) {
+            if (replyBody_md === "") {
+               return "Finish";
+            }
+            else {
+               return "Continue";
+            }
+         }
+         else {
+            return "Finished";
+         }
+      })
     } catch (err: any) {
       const errMsg: ChatMessage = {
         id: `${Date.now()}-e`,
@@ -123,8 +145,8 @@ export default function Chat({
   }
 
   function specialSend() {
-    if (specialMess != "Completed") {
-      void send(specialMess);
+    if (specialMessage != "Completed") {
+      void send(specialMessage);
     }
   }
 
@@ -145,7 +167,7 @@ export default function Chat({
           border: "1px solid #eee",
           borderRadius: 8,
           padding: 10,
-          background: "#fafafa",
+          background: "#0c0f45",
         }}
       >
         {messages.length === 0 && (
@@ -185,6 +207,19 @@ export default function Chat({
       />
 
       <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+        {specialBtn ?
+          <button
+            onClick={() => void specialSend()}
+            disabled={busy || disabled}
+            style={{
+              ...btnStyle,
+              background: busy || disabled ? "#9fb7aa" : "#2563eb",
+            }}
+          >
+            {specialMessage}
+          </button> : <></>  
+        }
+
         <button
           onClick={() => void send()}
           disabled={busy || disabled || !input.trim()}
@@ -195,19 +230,7 @@ export default function Chat({
         >
           {busy ? "Working…" : "Send"}
         </button>
-        {specialBtn ?
-          <button
-            onClick={() => void specialSend()}
-            disabled={busy || disabled}
-            style={{
-              ...btnStyle,
-              background: busy || disabled ? "#9fb7aa" : "#2563eb",
-            }}
-          >
-            {specialMess}
-          </button> : <></>  
-        }
-        <div style={{ fontSize: 12, opacity: 0.7 }}>Tip: Ctrl/Cmd + Enter to send.</div>
+                <div style={{ fontSize: 12, opacity: 0.7 }}>Tip: Ctrl/Cmd + Enter to send.</div>
         <div style={{ marginLeft: "auto" }}>{footerExtras}</div>
       </div>
     </div>
@@ -225,7 +248,7 @@ function MessageBubble({ msg }: { msg: ChatMessage }) {
 
   const innerStyle: React.CSSProperties = {
     maxWidth: "85%",
-    background: isSystem ? "#ffe8e8" : isUser ? "#dbeafe" : "#fff",
+    background: isSystem ? "#b0172e" : isUser ? "#43a9f7" : "#7326d1",
     border: "1px solid #eee",
     padding: "8px 10px",
     borderRadius: 10,

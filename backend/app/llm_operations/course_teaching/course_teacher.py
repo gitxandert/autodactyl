@@ -79,7 +79,6 @@ def iterate_lesson(message: str, session_id: str):
         return "Goodbye!"       
     elif message == "Finish":
         # the user has clicked "Finish"
-        lesson["status"] = 2 # status 2 means lesson is finished
         summary = summarize_lesson(lesson["messages"])
         lesson["summary"] = summary
         add_message(lesson, lid, summary, "application") 
@@ -100,12 +99,15 @@ def iterate_lesson(message: str, session_id: str):
         # if none of the former options are the case, then the user has
         # asked a question; answer_lesson_question will append the user's
         # message and the assistant's response to lesson["messages"]
-        messages = json.loads(lessons["messages"])
+        messages = json.loads(lesson["messages"])
         return_message = answer_lesson_question(message, ".\n\n".join([m["content"] for m in messages]))
         add_message(lesson, lid, message, "user") 
     # update the lesson
     add_message(lesson, lid, return_message, "application") 
+    if lesson["status"] != 2 and lesson["body_md"] == "":
+        lesson["status"] = 2
+
     LessonSession.update_lesson(lid, lesson)
     
-    response = {"response": return_message}
+    response = {"response": return_message, "status": lesson["status"], "body_md": lesson["body_md"]}
     return response
