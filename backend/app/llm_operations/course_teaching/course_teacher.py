@@ -38,6 +38,7 @@ class LessonSession:
     @staticmethod
     def update_lesson(lesson_id: int, lesson):
         LessonSession._session[lesson_id] = lesson
+        LessonSession.push_to_sql(lesson)
 
     @staticmethod
     def push_to_sql(lesson):
@@ -52,14 +53,14 @@ def iterate_body_md(body_md: str):
     rest = parts[1] if len(parts) > 1 else ""
     return first_paragraph, rest
 
-def add_message(lesson, lid, return_message, role):
+def add_message(lesson, lid, new_message, role):
     raw = lesson["messages"]
     try:
         messages = json.loads(raw)
     except Exception:
         messages = []
 
-    messages.append(format_as_ChatMsg(lid, role, return_message));
+    messages.append(format_as_ChatMsg(lid, role, new_message));
     lesson["messages"] = json.dumps(messages)
  
 def iterate_lesson(message: str, session_id: str):
@@ -82,6 +83,7 @@ def iterate_lesson(message: str, session_id: str):
         summary = summarize_lesson(lesson["messages"])
         lesson["summary"] = summary
         add_message(lesson, lid, summary, "application") 
+        lesson["status"] = 2
         LessonSession.push_to_sql(lesson)
         return {"response": summary}
     elif message == "Start":
@@ -104,9 +106,6 @@ def iterate_lesson(message: str, session_id: str):
         add_message(lesson, lid, message, "user") 
     # update the lesson
     add_message(lesson, lid, return_message, "application") 
-    if lesson["status"] != 2 and lesson["body_md"] == "":
-        lesson["status"] = 2
-
     LessonSession.update_lesson(lid, lesson)
     
     response = {"response": return_message, "status": lesson["status"], "body_md": lesson["body_md"]}
