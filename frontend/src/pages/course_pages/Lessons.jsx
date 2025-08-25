@@ -53,17 +53,20 @@ export default function Lessons() {
    }       
    
    const setSpecialMessage = (lstatus, lbody_md) => {
-      if (!showChat) {
-         if (lstatus === 0) {
-            setSpecialMess("Start");
-         }
-         else if (lstatus === 1) {
-            setSpecialMess("Resume");
-         }
-         else {
-            setSpecialMess("Finished");
-         }
-      }
+     if (lstatus === 0) {
+       setSpecialMess("Start");
+     }
+     else if (lstatus === 1) {
+       if (lbody_md === "") {
+         setSpecialMess("Finish");
+       }
+       else {
+         setSpecialMess("Continue");
+       }
+     }
+     else {
+       setSpecialMess("Finished");
+     }
    }
 
    const initialMessages = useMemo(()=> {
@@ -106,7 +109,6 @@ export default function Lessons() {
                    height={260}
                    initialMessages={initialMessages}
                    specialBtn={true}
-                   specialMess={specialMess}
                    />
                   <button onClick={() => setShowChat(false)}>Exit</button>
                </>
