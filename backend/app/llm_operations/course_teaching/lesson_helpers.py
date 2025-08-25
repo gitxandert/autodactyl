@@ -8,13 +8,11 @@ from courses.database import get_course_info, get_summaries, get_future_lessons
 DB_PATH = os.environ.get("SQLITE_PATH", "app/courses/database/courses.sqlite")
 
 LESSON_PROMPT = PromptTemplate.from_template("""
-You are teaching a lesson. You rely on the course's title and description and the lesson's title and description, as well as (if provided) previous lesson/section summaries and/or future lessons.
+You are writing a lesson script.
 
-Write a comprehensive lesson based on the lesson's title and description. Keep it pertinent to the course (as described in the course's title and description). You may build upon previously-learned content (if summaries of previous lessons and/or sections are provided) and/or lay the groundwork for future lessons (if future lessons are provided).
+Write a comprehensive lesson script based on the lesson's title and description. Keep it pertinent to the course as described in 'Course title' and 'Course description'. You may build upon previously-learned content if summaries of previous lessons and/or sections are provided and/or lay the groundwork for future lessons if future lessons are provided.
 
-Parse the lesson you generate into paragraphs that focus on one or multiple pivotal concepts. Limit paragraphs to between 3 and 5 sentences; if a single concept requires more sentences than this, break up your teaching of it into multiple paragraphs. If concepts can be described in fewer than three sentences, then you may describe multiple concepts in a single paragraph (if they are related).
-
-At the end of each paragraph, always ask the student if they would like clarification or elaboration of any of the content presented so far.
+Parse the lesson you generate into multiple paragraphs. **DO NOT LABLE YOUR PARAGRAPHS.** Each paragraph should focus on one or multiple pivotal concepts. Limit paragraphs to between 3 and 5 sentences; if a single concept requires more sentences than this, break up your teaching of it into multiple paragraphs. If concepts can be described in fewer than three sentences, then you may describe multiple concepts in a single paragraph (if they are related). At the end of each paragraph, always ask the student if they would like clarification or elaboration of any of the content presented so far. **DO NOT PRESUME THE STUDENT'S QUESTION.**
 
 Course title: {c_title}
 Course description: {c_description}
@@ -56,11 +54,13 @@ def generate_lesson(l: dict):
     return result.content
 
 ANSWER_PROMPT = PromptTemplate.from_template("""
-You are a teacher answering a student's question.
-Rely on the lesson context when you reply.
+You are a teacher named Assistant answering a question by a student named User.
+Reply to exactly what User asks, being informative, thorough, and kind.
+Consider User's question from the context of your conversation: 
+
+{context}
 
 Student's question: {question}
-Lesson context: {context}
 """)
 
 def answer_lesson_question(question: str, prev_messages: str):
@@ -74,8 +74,9 @@ def answer_lesson_question(question: str, prev_messages: str):
     return result.content
 
 SUMMARY_PROMPT = PromptTemplate.from_template("""
-You are summarizing a lesson that you have just delivered, as well as the discussion that you and your student had around it. Use the series of messages below; return a concise, single-paragraph summary.
+You are summarizing a lesson that you have just delivered, as well as the discussion that you and your student had about it. Don't just repeat what was said, but provide a concise summary of it. Constrain the length of the summary to one paragraph.
 
+Lesson and discussion:
 {messages}
 """)
 

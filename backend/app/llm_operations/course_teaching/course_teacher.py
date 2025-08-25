@@ -18,7 +18,7 @@
 import os, sqlite3, json
 
 from courses.database import get_single_lesson, update_lesson_sql
-from llm_operations.course_teaching.lesson_helpers import generate_lesson, answer_lesson_question, summarize_lesson
+from llm_operations.course_teaching.lesson_helpers import generate_lesson, answer_lesson_question, summarize_lesson, format_as_ChatMsg
 
 DB_PATH = os.environ.get("SQLITE_PATH", "app/courses/database/courses.sqlite")
 
@@ -51,6 +51,16 @@ def iterate_body_md(body_md: str):
     first_paragraph = parts[0]
     rest = parts[1] if len(parts) > 1 else ""
     return first_paragraph, rest
+
+def add_message(lesson, lid, return_message, role):
+    raw = lesson["messages"]
+    try:
+        messages = json.loads(raw)
+    except Exception:
+        messages = []
+
+    messages.append(format_as_ChatMsg(lid, role, return_message));
+    lesson["messages"] = json.dumps(messages)
  
 def iterate_lesson(message: str, session_id: str):
     # convert session_id to int for SQL
@@ -72,9 +82,7 @@ def iterate_lesson(message: str, session_id: str):
         lesson["status"] = 2 # status 2 means lesson is finished
         summary = summarize_lesson(lesson["messages"])
         lesson["summary"] = summary
-        lesson["messages"] = json.dumps(
-                json.loads(lesson["messages"] + [format_as_ChatMsg(lid, "assistant", summary)]
-        )
+        add_message(lesson, lid, summary, "application") 
         LessonSession.push_to_sql(lesson)
         return {"response": summary}
     elif message == "Start":
@@ -83,30 +91,20 @@ def iterate_lesson(message: str, session_id: str):
         print("generating lesson")
         lesson["body_md"] = generate_lesson(lesson)
         lesson["status"] = 1 # status 1 means lesson has started
-        lesson["body_md"], return_message = iterate_body_md(lesson["body_md"])
-        lesson["messages"] = json.dumps(
-                json.loads(lesson["messages"] + [format_as_ChatMsg(lid, "application", return_message)]
-        )
-    elif message == "Return" or  message == "Continue":
+        return_message, lesson["body_md"] = iterate_body_md(lesson["body_md"])
+    elif message == "Resume" or  message == "Continue":
         # the user is continuing a lesson, so the next part of body_md
         # needs to be added to lesson["messages"]
-        lesson["body_md"], return_message = iterate_body_md(lesson["body_md"])
-        lesson["messages"] = json.dumps(
-                json.loads(lesson["messages"] + [format_as_ChatMsg(lid, "application", return_message)]
-        )
+        return_message, lesson["body_md"] = iterate_body_md(lesson["body_md"])
     else:
         # if none of the former options are the case, then the user has
         # asked a question; answer_lesson_question will append the user's
         # message and the assistant's response to lesson["messages"]
-        return_message = answer_lesson_question(message, lesson["messages"])
-        lesson["messages"] = json.dumps(
-            json.loads(lesson["messages"] + [format_as_ChatMsg(lid, "user", message)
-        )
-        lesson["messages"] = json.dumps(
-                json.loads(lesson["messages"] + [format_as_ChatMsg(lid, "application", return_message)]
-        )
-    
+        messages = json.loads(lessons["messages"])
+        return_message = answer_lesson_question(message, ".\n\n".join([m["content"] for m in messages]))
+        add_message(lesson, lid, message, "user") 
     # update the lesson
+    add_message(lesson, lid, return_message, "application") 
     LessonSession.update_lesson(lid, lesson)
     
     response = {"response": return_message}
