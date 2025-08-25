@@ -19,7 +19,7 @@ export type ChatProps = {
   /* disable input/buttons while an in-flight request is pending */
   disabled?:        boolean;
   /* optional initial history to seed the transcript */
-  initialMessages?: ChatMessage[];
+  initialMessages?: ChatMessage[] | string | null | undefined;
   /* called after a successful reply is received */
   onReply?:         (reply: ChatMessage, all: ChatMessage[], server: any) => void;
   /* allows for extra controls in the footer (e.g., Approve & Save) */
@@ -42,27 +42,28 @@ export default function Chat({
   specialMess
 }: ChatProps) {
   const { LLMchat } = useApi();
-  const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [pendingServer, setPendingServer] = useState<any>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
-  
-  console.log(messages);
+ 
+  const parsedInitial = useMemo<ChatMessage[]>(() => {
+    if (Array.isArray(initialMessages)) return initialMessages as ChatMessage[];
+    if (typeof initialMessages === "string" && initialMessages.trim()) {
+      try { return JSON.parse(initialMessages) as ChatMessage[]; } catch { return []; }
+    }
+  }, [initialMessages]);
+
+  useEffect(() => {
+    setMessages(parsedInitial);
+  }, [parsedInitial]);
+
   // Auto-scroll to newest message
   useEffect(() => {
     const el = scrollRef.current;
     if (el) el.scrollTop = el.scrollHeight;
   }, [messages, busy]);
-
-  useEffect(() => {
-    if (!pendingServer) return;
-    const last = messages[messages.length - 1];
-    if (last?.role === "assistant") {
-      onReply?.(last, messages, pendingServer);
-      setPendingServer(null);
-    }
-  }, [messages, pendingServer, onReply]);
   
   const btnStyle = useMemo(
     () => ({
@@ -77,8 +78,7 @@ export default function Chat({
   );
 
   async function send(text="") {
-    if (text == "")
-      text = input.trim();
+    if (text === "") text = input.trim();
     if (!text || busy || disabled) return;
 
     const userMsg: ChatMessage = {
@@ -110,7 +110,6 @@ export default function Chat({
          onReply?.(asst, next, data);
          return next;
       });
-      setPendingServer(data);
     } catch (err: any) {
       const errMsg: ChatMessage = {
         id: `${Date.now()}-e`,
