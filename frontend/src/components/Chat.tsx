@@ -229,7 +229,7 @@ export default function Chat({
           border: "1px solid #ddd",
           resize: "vertical",
         }}
-        disabled={busy || disabled}
+        disabled={busy || disabled || specialMessage === "Finished"}
         onKeyDown={onKeyDown}
       />
 
@@ -237,7 +237,7 @@ export default function Chat({
         {specialBtn ?
           <button
             onClick={() => void specialSend()}
-            disabled={busy || disabled}
+            disabled={busy || disabled || specialMessage === "Finished"}
             style={{
               ...btnStyle,
               background: busy || disabled ? "#9fb7aa" : "#2563eb",
@@ -246,18 +246,21 @@ export default function Chat({
             {specialMessage}
           </button> : <></>  
         }
-
-        <button
-          onClick={() => void send()}
-          disabled={busy || disabled || !input.trim()}
-          style={{
-            ...btnStyle,
-            background: busy || disabled || !input.trim() ? "#9fb7aa" : "#2563eb",
-          }}
-        >
-          {busy ? "Working…" : "Send"}
-        </button>
-                <div style={{ fontSize: 12, opacity: 0.7 }}>Tip: Ctrl/Cmd + Enter to send.</div>
+        {specialMessage === "Finished" ? <></> :
+          <>
+            <button
+              onClick={() => void send()}
+              disabled={busy || disabled || !input.trim()}
+              style={{
+                ...btnStyle,
+                background: busy || disabled || !input.trim() ? "#9fb7aa" : "#2563eb",
+              }}
+            >
+              {busy ? "Thinking…" : "Send"}
+            </button>
+            <div style={{ fontSize: 12, opacity: 0.7 }}>Tip: Ctrl/Cmd + Enter to send.</div>
+          </>
+        }
         <div style={{ marginLeft: "auto" }}>{footerExtras}</div>
       </div>
     </div>

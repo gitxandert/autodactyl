@@ -61,7 +61,7 @@ export default function Lessons() {
             setSpecialMess("Resume");
          }
          else {
-            setSpecialMess("Revisit");
+            setSpecialMess("Finished");
          }
       }
    }
@@ -108,7 +108,7 @@ export default function Lessons() {
                    specialBtn={true}
                    specialMess={specialMess}
                    />
-                  <button onClick={() => setShowChat(false)}>Back</button>
+                  <button onClick={() => setShowChat(false)}>Exit</button>
                </>
             ) : description ? (
                <>
