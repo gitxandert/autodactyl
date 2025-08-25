@@ -31,6 +31,35 @@ export type ChatProps = {
   specialMess?:     string;
 };
 
+function typeMessage(
+  fullText: string,
+  baseMsg: ChatMessage,
+  setMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>,
+  speed = 30 // ms per character
+) {
+  let i = 0;
+
+  // Add initial empty assistant message
+  setMessages((prev) => [...prev, { ...baseMsg, content: "" }]);
+
+  const interval = setInterval(() => {
+    i++;
+    setMessages((prev) => {
+      // Update *just* the last assistant message
+      const next = [...prev];
+      const last = next[next.length - 1];
+      if (last.id === baseMsg.id) {
+        next[next.length - 1] = { ...last, content: fullText.slice(0, i) };
+      }
+      return next;
+    });
+
+    if (i >= fullText.length) {
+      clearInterval(interval);
+    }
+  }, speed);
+}
+
 export default function Chat({
   purpose,
   sessionId,
@@ -51,16 +80,15 @@ export default function Chat({
   const [pendingServer, setPendingServer] = useState<any>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
  
-  const parsedInitial = useMemo<ChatMessage[]>(() => {
-    if (Array.isArray(initialMessages)) return initialMessages as ChatMessage[];
-    if (typeof initialMessages === "string" && initialMessages.trim()) {
-      try { return JSON.parse(initialMessages) as ChatMessage[]; } catch { return []; }
-    }
-  }, [initialMessages]);
-
   useEffect(() => {
-    setMessages(parsedInitial);
-  }, [parsedInitial]);
+    let initial: ChatMessage[] = [];
+    if (Array.isArray(initialMessages)) initial = initialMessages;
+    else if (typeof initialMessages === "string" && initialMessages.trim()) {
+      try { initial = JSON.parse(initialMessages) as ChatMessage[]; } catch {}
+  }
+    setMessages(initial);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // run once
 
   // Auto-scroll to newest message
   useEffect(() => {
@@ -112,13 +140,12 @@ export default function Chat({
       const asst: ChatMessage = {
         id: `${Date.now()}-a`,
         role: "assistant",
-        content: replyText ?? "",
+        content: "", // start empty
       };
-      setMessages((prev) => {
-         const next = [...prev, asst];
-         onReply?.(asst, next, data);
-         return next;
-      });
+
+      typeMessage(replyText ?? "", asst, setMessages, 25);
+      onReply?.(asst, [...messages, asst], data);
+
       setSpecialMessage(() => {
          if (replyStatus === 1) {
             if (replyBody_md === "") {
