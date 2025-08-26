@@ -185,6 +185,7 @@ def get_lessons(con: sqlite3.Connection, section_id: int):
         l.id                       AS id,
         l.title                    AS title,
         l.description              AS description,
+        l.body_md                  AS body_md,
         l.messages                 AS messages,
         l.status                   AS status
     FROM lessons AS l
