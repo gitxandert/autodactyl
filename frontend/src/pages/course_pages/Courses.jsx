@@ -34,7 +34,7 @@ export default function Courses({ selectedId = null }) {
         <>
           <Link to="/courses"><button>Courses</button></Link>
           <Link to={`/courses/${selected.id}`} className="block">
-            <Card title={selected.title}></Card>
+            <Card title={selected.title} className="courses"></Card>
           </Link>
         </>
       ) : (
@@ -42,8 +42,8 @@ export default function Courses({ selectedId = null }) {
           <AnimatePresence>
             {courses.map((c) => (
               <AnimatedElement key={c.id}>
-                <Link to={`/courses/${c.id}`} className="block">
-                  <Card title={c.title}>
+                <Link to={`/courses/${c.id}`} className="block w-full">
+                  <Card title={c.title} className="courses">
                     <p className="text-sm text-muted-foreground">{c.description}</p>
                     <div className="mt-3 text-sm">
                       <span className="mr-4">Sections: {c.section_count}</span>

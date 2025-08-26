@@ -13,6 +13,9 @@ import Chat from "../../components/Chat.tsx";
 /* api */
 import { useApi } from "../../api/useApi.jsx";
 
+/* utilities */
+import AnimatedElement from "../../utils/AnimatedElement.tsx";
+
 /* Lessons */
 export default function Lessons() {
    const { courseId, sectionId: sidString } = useParams();
@@ -42,7 +45,7 @@ export default function Lessons() {
    const [currentLesson, setCurrentLesson] = useState({});
    const [description,   setDescription  ] = useState("");
    const [showChat,      setShowChat     ] = useState(false);
-   const [specialMess,   setSpecialMess] = useState("");
+   const [specialMess,   setSpecialMess  ] = useState("");
 
    function setSpecialMessage() {
      const lstatus = currentLesson["status"];
@@ -89,8 +92,8 @@ export default function Lessons() {
    if (error) return <div className="p-4 text-red-500">Error: {error}</div>;
    return (
       <div className="lessons">
+         <AnimatedElement>
          <h2 className="lessons-header">Lessons</h2>
-         
          <div className="lessons-list">
             <ol className="dynamicList">
                {lessons.map((l) => (
@@ -98,7 +101,8 @@ export default function Lessons() {
                ))}
             </ol>
          </div>
-
+         </AnimatedElement>
+         <AnimatedElement>
          <div className="lessons-interact">
             {showChat ? (
                <>
@@ -122,6 +126,7 @@ export default function Lessons() {
                <em>Select a lesson to see its description</em>
             )}
          </div>
+         </AnimatedElement>
       </div>
    );
 }

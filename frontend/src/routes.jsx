@@ -31,7 +31,7 @@ export default function AppRoutes() {
           <Route path="/courses" element={<CourseShell />} >
             <Route index element={<div />} />
             <Route path=":courseId" element={<SectionShell />} >
-              <Route index element={<Sections />} />
+              <Route index element={<div />} />
               <Route path=":sectionId" element={<Lessons />} />
             </Route>
           </Route>

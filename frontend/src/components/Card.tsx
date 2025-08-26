@@ -17,6 +17,10 @@ export default function Card({
     <motion.article
       // your base styling
       className={[
+        'block',
+        'w-full',
+        'max-w-none',
+        'min-w-0',
         'rounded-xl',
         'shadow-md',
         'p-6',

@@ -52,58 +52,70 @@
    animation: mainSpin 20s linear infinite;
 } */}
 
-/* Builder */
+/* Courses */
 
+.courses {
+  background-color: hsl(299 68.7% 34.5%);
+  color: hsl(0, 0%, 100%);
+  width: 100%;
+}
+
+.sections {
+  background-color: hsl(167 78.5% 38.9%);
+  color: hsl(0, 0%, 100%);
+  width: 100%;
+}
+  
 .lessons {
-   display: grid;
-   grid-template-columns: repeat(3, [less-col] 1fr);
-   grid-template-rows:    [row-1] 10% [row-2] 10% [row-3] 80% [rows-end];
-   gap: 2rem;
+  display: grid;
+  grid-template-columns: repeat(3, [less-col] 1fr);
+  grid-template-rows:    [row-1] 10% [row-2] 10% [row-3] 80% [rows-end];
+  gap: 2rem;
 }
 
 .lessons-nav {
-   grid-column: 1 / 4;
-   grid-row:    row-1;
-   display:     flex;
-   justify-content: space-evenly;
+  grid-column: 1 / 4;
+  grid-row:    row-1;
+  display:     flex;
+  justify-content: space-evenly;
 }
 
 .lessons-header {
-   grid-column: less-col 1;
-   grid-row:    row-2;
+  grid-column: less-col 1;
+  grid-row:    row-2;
 }
 
 .lessons-list {
-   grid-column: less-col 1;
-   grid-row:    row-3;
+  grid-column: less-col 1;
+  grid-row:    row-3;
 }
 
 .lessons-interact {
-   grid-column: less-col 2 / 4;
-   grid-row:    row-3;
+  grid-column: less-col 2 / 4;
+  grid-row:    row-3;
 }
 
 .dynamicList li {
-   list-style-type: decimal;
-   background-color: hsl(0, 0%, 50%);
-   border-radius: 10px 0px;
-   padding: 15px;
-   margin-bottom: 10px;
-   width: 300px;
-   height: 75px;
-   display: flex;
-   justify-content: center;
-   align-items: center;
-   box-sizing: border-box;
-   text-align: center;
-   color: hsl(0, 0%, 0%);
-   transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
+  list-style-type: decimal;
+  background-color: hsl(0, 0%, 50%);
+  border-radius: 10px 0px;
+  padding: 15px;
+  margin-bottom: 10px;
+  width: 300px;
+  height: 75px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  text-align: center;
+  color: hsl(0, 0%, 0%);
+  transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
 }
 
 .dynamicList li:hover {
-   background-color: hsl(0, 0%, 30%);
-   color: hsl(0, 0%, 100%);
-   cursor: pointer;
+  background-color: hsl(0, 0%, 30%);
+  color: hsl(0, 0%, 100%);
+  cursor: pointer;
 }
 
 @media (prefers-color-scheme: dark) {

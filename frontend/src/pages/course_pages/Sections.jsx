@@ -42,15 +42,15 @@ export default function Sections({ selectedId = null }) {
       <div className="space-y-4">
         {selected ? (
           <>
-            <Card title={selected.title}></Card>
+            <Card title={selected.title} className="sections" style={{ width: '100%', maxWidth: 'none' }}></Card>
           </>
         ) : (
-          <div className="grid gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2"> 
             <AnimatePresence>
               {sections.map((s) => (
                 <AnimatedElement key={s.id}>
-                  <Link to={`/courses/${courseId}/${s.id}`}>
-                    <Card title={s.title}>
+                  <Link to={`/courses/${courseId}/${s.id}`} className="block w-full">
+                    <Card title={s.title} className="sections w-full">
                       <p className="text-sm text-muted-foreground">
                         {s.description}
                       </p>

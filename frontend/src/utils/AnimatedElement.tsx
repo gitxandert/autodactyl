@@ -23,7 +23,7 @@ export default function AnimatedElement({ children }: AnimatedElementProps) {
       animate={{ x: 0,      opacity: 1 }}
       exit={{    x: exitX,  opacity: 0 }}
       transition={{ duration: 0.5, ease: "easeInOut" }}
-      className="w-full"
+      className="block w-full"
     >
       {children}
     </motion.div>
