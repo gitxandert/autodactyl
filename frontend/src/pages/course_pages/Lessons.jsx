@@ -42,22 +42,16 @@ export default function Lessons() {
    const [currentLesson, setCurrentLesson] = useState({});
    const [description,   setDescription  ] = useState("");
    const [showChat,      setShowChat     ] = useState(false);
-   const [specialMess, setSpecialMess] = useState("");
+   const [specialMess,   setSpecialMess] = useState("");
 
-   function showDescription(l) {
-      if (!showChat) {
-         setCurrentLesson(l);
-         setDescription(l?.description ?? "");
-         setSpecialMessage(l["status"], l["body_md"]);
-      }
-   }       
-   
-   const setSpecialMessage = (lstatus, lbody_md) => {
+   function setSpecialMessage() {
+     const lstatus = currentLesson["status"];
+     console.log(currentLesson);
      if (lstatus === 0) {
        setSpecialMess("Start");
      }
      else if (lstatus === 1) {
-       if (lbody_md === "") {
+       if (currentLesson.body_md === "") {
          setSpecialMess("Finish");
        }
        else {
@@ -68,6 +62,18 @@ export default function Lessons() {
        setSpecialMess("Finished");
      }
    }
+
+  function showDescription(l) {
+      if (!showChat) {
+         setCurrentLesson(l);
+         setDescription(l?.description ?? "");
+      }
+   }        
+
+  const openLesson = () => {
+    setSpecialMessage();
+    setShowChat(true);
+  }
 
    const initialMessages = useMemo(()=> {
         const raw = currentLesson.messages;
@@ -83,14 +89,8 @@ export default function Lessons() {
    if (error) return <div className="p-4 text-red-500">Error: {error}</div>;
    return (
       <div className="lessons">
-         <div className="lessons-nav">
-            <Link to={`/sections/${courseId}`}><button>Sections</button></Link>
-            <Link to="/courses"><button>Courses</button></Link>
-            <Link to="/"><button>Home</button></Link>
-         </div>
-
          <h2 className="lessons-header">Lessons</h2>
-
+         
          <div className="lessons-list">
             <ol className="dynamicList">
                {lessons.map((l) => (
@@ -109,13 +109,14 @@ export default function Lessons() {
                    height={260}
                    initialMessages={initialMessages}
                    specialBtn={true}
+                   specialMess={specialMess}
                    />
                   <button onClick={() => setShowChat(false)}>Exit</button>
                </>
             ) : description ? (
                <>
                   <p>{description}</p>
-                  <button onClick={() => setShowChat(true)}>Open</button>
+                  <button onClick={() => openLesson()}>Open</button>
                </>
             ) : (
                <em>Select a lesson to see its description</em>

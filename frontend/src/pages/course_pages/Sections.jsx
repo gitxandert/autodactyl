@@ -1,12 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import Home from "../Home.jsx";
-import Courses from "./Courses.jsx";
-import Lessons from "./Lessons.jsx";
+import { AnimatePresence } from "framer-motion";
 import { useApi } from "../../api/useApi.jsx";
 import Card from "../../components/Card.jsx";
+import AnimatedElement from "../../utils/AnimatedElement.tsx";
 
-export default function Sections() {
+export default function Sections({ selectedId = null }) {
    const { courseId: cidString } = useParams();
 
    // Parse safely; undefined -> NaN
@@ -36,24 +35,35 @@ export default function Sections() {
 
    if (error) return <div className="p-4 text-red-500">Error: {error}</div>;
 
-   return (
-      <div className="grid gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3">
-        
-         <Link to="/courses"><button>Courses</button></Link>
-         <Link to="/"><button>Home</button></Link>
+   const selected = sections.find((s) => String(s.id) === String(selectedId)) ?? null
+   const others = sections.filter((s) => String(s.id) !== String(selectedId)) ?? null
 
-         {sections.map((s) => (
-            <Link key={s.id} to={`/lessons/${courseId}/${s.id}`}>
-            <Card title={s.title}>
-               <p className="text-sm text-muted-foreground">
-                  {s.description}
-               </p>
-               <div className="mt-3 text-sm">
-                  <span>Lessons: {s.lesson_count}</span>
-               </div>
-            </Card>
-            </Link>
-         ))}
-      </div>     
-   );     
+   return (
+      <div className="space-y-4">
+        {selected ? (
+          <>
+            <Card title={selected.title}></Card>
+          </>
+        ) : (
+          <div className="grid gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3">
+            <AnimatePresence>
+              {sections.map((s) => (
+                <AnimatedElement key={s.id}>
+                  <Link to={`/courses/${courseId}/${s.id}`}>
+                    <Card title={s.title}>
+                      <p className="text-sm text-muted-foreground">
+                        {s.description}
+                      </p>
+                      <div className="mt-3 text-sm">
+                        <span>Lessons: {s.lesson_count}</span>
+                      </div>
+                    </Card>
+                  </Link>
+                </AnimatedElement>
+              ))}
+            </AnimatePresence>
+          </div>   
+        )}
+      </div>
+    );     
 }
