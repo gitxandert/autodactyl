@@ -1,0 +1,19 @@
+import { Outlet, useParams } from "react-router-dom";
+import Courses from "./Courses.jsx";
+
+export default function CourseShell() {
+  const { courseId } = useParams();
+  return (
+    <div className="grid gap-4 p-4 lg:grid-cols-3">
+      <div className="lg:col-span-1">
+        <Courses selectedId={courseId ?? null} />
+      </div>
+
+      {courseId && (
+        <div className="lg:col-span-2">
+          <Outlet />
+        </div>
+      )}
+    </div>
+  );
+}
