@@ -1,9 +1,4 @@
 import { Link } from "react-router-dom";
-import About from "./About.jsx";
-import Builder from "./Builder.jsx";
-import Community from "./Community.jsx";
-import Course from "./course_pages/Courses.jsx";
-import Profile from "./Profile.jsx";
 
 export default function Home() {
    return (
