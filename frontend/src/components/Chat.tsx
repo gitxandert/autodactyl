@@ -87,8 +87,7 @@ export default function Chat({
       try { initial = JSON.parse(initialMessages) as ChatMessage[]; } catch {}
   }
     setMessages(initial);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // run once
+  }, []);
 
   // Auto-scroll to newest message
   useEffect(() => {
@@ -213,7 +212,7 @@ export default function Chat({
       </div>
 
       <label htmlFor="chat-input" style={{ fontWeight: 600 }}>
-        Message
+        {purpose} 
       </label>
       <textarea
         id="chat-input"
