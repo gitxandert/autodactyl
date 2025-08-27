@@ -6,6 +6,18 @@
   text-align: center;
 }
 
+body {
+  --tint: rgba(50,255,255,.5);
+
+  background:
+    linear-gradient(var(--tint), var(--tint)),
+    url('/wrapping_paper.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center;
+}
+
 .card {
   padding: 2em;
 }
@@ -22,26 +34,36 @@
 }
 
 .mainButton-About {
+   background-color: rgba(255, 50,  255, .7);
+   color: rgba(220,  255, 220,  .7);
    grid-row:    main-row 4;
    grid-column: main-col 2;
 }
 
 .mainButton-Builder {
+   background-color: rgba(50,  255, 50,  .7);
+   color: rgba(255, 255,  255, .7);
    grid-column: main-col 4;
    grid-row:    main-row 2;
 }
 
 .mainButton-Community {
+   background-color: rgba(255, 255, 50,  .7);
+   color: rgba(255, 50,  5, .7);
    grid-column: main-col 6;
    grid-row:    main-row 6;
 }
 
 .mainButton-Courses {
+   background-color: rgba(50,  50,  255, .7);
+   color: rgba(255, 255, 50, .7);
    grid-column: main-col 8;
    grid-row:    main-row 2;
 }
 
 .mainButton-Profile {
+   background-color: rgba(255, 50,  50,  .7);
+   color: rgba(50,  50,  255, .7);
    grid-column: main-col 10;
    grid-row:    main-row 4;
 }
@@ -55,12 +77,6 @@
    animation: mainSpin 20s linear infinite;
 } */}
 
-/* shells */
-
-.shell {
-  grid grid-cols-1 gap-4 p-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]
-}
-
 /* course pages */
 
 .courses {
@@ -70,7 +86,7 @@
 }
 
 .sections {
-  background-color: hsl(167 78.5% 38.9%);
+  background-color: hsl(167 63.5% 48.9%);
   color: hsl(0, 0%, 100%);
   width: 100%;
 }

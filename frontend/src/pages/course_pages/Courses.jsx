@@ -3,6 +3,7 @@ import { Link }                 from "react-router-dom";
 import { AnimatePresence }      from "framer-motion";
 import { useApi }               from "../../api/useApi.jsx";
 import Card                     from "../../components/Card.tsx";
+import HomeBtn                  from "../../components/HomeBtn.jsx";
 import AnimatedElement          from "../../utils/AnimatedElement.tsx";
 
 export default function Courses({ selectedId = null }) {
@@ -28,11 +29,10 @@ export default function Courses({ selectedId = null }) {
 
    return (
     <div>
-      <Link to="/"><button>Home</button></Link>
-
+      <HomeBtn />
       {selected ? (
         <>
-          <Link to="/courses"><button>Courses</button></Link>
+          <Link to="/courses"><button style={{ backgroundColor: 'rgba(50, 50, 255, .7)' }}>Courses</button></Link>
           <Link to={`/courses/${selected.id}`} className="block">
             <Card title={selected.title} className="courses"></Card>
           </Link>

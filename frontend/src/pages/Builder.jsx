@@ -4,6 +4,7 @@ import { useApi } from "../api/useApi.jsx";
 import Home from "./Home.jsx";
 import Courses from "./course_pages/Courses.jsx";
 import Chat from "../components/Chat.tsx";
+import HomeBtn from "../components/HomeBtn.jsx";
 
 function useSessionId(key = "course_session_id") {
   const [sessionId, setSessionId] = useState("");
@@ -53,7 +54,7 @@ export default function Builder() {
    return(
       <section style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 24 }}>
          <div>
-            <Link to="/"><button>Home</button></Link>
+            <HomeBtn />
             <h2 style={{ fontSize: 18, marginBottom: 8 }}>Chat</h2>
             <div>
                <Chat
