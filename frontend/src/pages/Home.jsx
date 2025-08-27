@@ -1,19 +1,18 @@
-import React    from "react";
+import React, { useEffect }    from "react";
 import { Link } from "react-router-dom";
 
 export default function Home() {
-   function tintChange(color) {
-     document.body.style.setProperty("--tint", color);
-   }
+   useEffect(() => {
+     document.body.style.setProperty("--tint", "rgba(50, 255, 255, .5)");
+   })
 
    return (
       <div className="main">
-         <img src="public/autodactyl.svg" alt="autodactyl logo" />
+         <img src="/autodactyl.svg" alt="autodactyl logo" />
          <div className="mainButtons">
            <Link to="/about">
              <button 
               className="mainButton-About"
-              onClick={() => tintChange("rgba(255, 50, 255, .5)")}
              >
                About
              </button>
@@ -21,15 +20,13 @@ export default function Home() {
            <Link to="/builder">
              <button 
               className="mainButton-Builder"
-              onClick={() => tintChange("rgba(50, 255, 50, .5)")}
-              >
-                Builder
+             >
+               Builder
              </button>
            </Link>
            <Link to="/community">
              <button
               className="mainButton-Community"
-              onClick={() => tintChange("rgba(255, 255, 50, .5)")}
              >
                Community
              </button>
@@ -37,7 +34,6 @@ export default function Home() {
            <Link to="/courses">
              <button 
               className="mainButton-Courses"
-              onClick={() => tintChange("rgba(50, 50, 255, .5)")}
              >
                Courses
              </button>
@@ -45,7 +41,6 @@ export default function Home() {
            <Link to="/profile">
              <button 
               className="mainButton-Profile"
-              onClick={() => tintChange("rgba(255, 50, 50, .5)")}
              >
                Profile
              </button>

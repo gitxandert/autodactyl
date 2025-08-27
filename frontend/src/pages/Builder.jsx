@@ -32,6 +32,10 @@ export default function Builder() {
    const outRef = useRef(null);
 
    useEffect(() => {
+     document.body.style.setProperty("--tint", "rgba(0,  155, 0,  .4)");
+   })
+
+   useEffect(() => {
       if (outRef.current) outRef.current.scrollTop = outRef.current.scrollHeight;
    }, [log, draft]);
 
@@ -52,41 +56,43 @@ export default function Builder() {
    }
 
    return(
-      <section style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 24 }}>
-         <div>
+      <section>
+         <div style={{ display: "flex", flexDirection: "column" }}>
             <HomeBtn />
-            <h2 style={{ fontSize: 18, marginBottom: 8 }}>Chat</h2>
-            <div>
-               <Chat
-                purpose={"build"}
-                sessionId={sessionId}
-                disabled={!sessionId}
-                height={260}
-                footerExtras={(
-                  <button onClick={approve} disabled={!canApprove || busy} style={{ background: canApprove && !busy ? "#0b8457" : "#9fb7aa", color: "#fff", border: 0, borderRadius: 8, padding: "8px 12px" }}>
-                     Approve & Save
-                  </button>
-                )}
-                onReply={(_, __, server) => {
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 24 }}>
+              <div>
+                <h2 style={{ fontSize: 18, marginBottom: 8 }}>Chat</h2>
+                <Chat
+                  purpose={"build"}
+                  sessionId={sessionId}
+                  disabled={!sessionId}
+                  height={260}
+                  footerExtras={(
+                    <button onClick={approve} disabled={!canApprove || busy} style={{ background: canApprove && !busy ? "#0b8457" : "#9fb7aa", color: "#fff", border: 0, borderRadius: 8, padding: "8px 12px" }}>
+                      Approve & Save
+                    </button>
+                  )}
+                  onReply={(_, __, server) => {
                    // try to find a draft/course in the server payload
-                  const result = server?.result ?? server;
-                  const maybeDraft =
-                    result?.draft ??
-                    result?.course ??
-                    result?.data?.draft ??
-                    result?.data?.course ??
-                    null;
+                    const result = server?.result ?? server;
+                    const maybeDraft =
+                      result?.draft ??
+                      result?.course ??
+                      result?.data?.draft ??
+                      result?.data?.course ??
+                      null;
               
-                  if (maybeDraft) setDraft(maybeDraft);
-                }}
-                />
+                    if (maybeDraft) setDraft(maybeDraft);
+                  }}
+                  />
+              </div>
+              <div>
+                <h2 style={{ fontSize: 18, marginBottom: 8 }}>Current Draft</h2>
+                <pre style={{ height: 260, overflow: "auto", border: "1px solid #eee", borderRadius: 8, padding: 10, background: "#111", color: "#e6e6e6" }}>
+                  {draft ? pretty(draft) : "—"}
+                </pre>
+              </div>
             </div>
-         </div>
-         <div>
-            <h2 style={{ fontSize: 18, marginBottom: 8 }}>Current Draft</h2>
-            <pre style={{ height: 260, overflow: "auto", border: "1px solid #eee", borderRadius: 8, padding: 10, background: "#111", color: "#e6e6e6" }}>
-               {draft ? pretty(draft) : "—"}
-            </pre>
          </div>
       </section>
    );
