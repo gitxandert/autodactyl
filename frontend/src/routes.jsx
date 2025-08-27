@@ -16,9 +16,9 @@ import Lessons from "./pages/course_pages/Lessons.jsx";
 
 export default function AppRoutes() {
   return (
-    <div className="min-h-screen flex">
+    <div className="display:block w-screen">
       {/* Routed content */}
-      <main className="flex-1 p-4 overflow-auto">
+      <main>
         <Routes>
           {/* main routes */}
           <Route path="/" element={<Home />} />

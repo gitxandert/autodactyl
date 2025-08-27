@@ -27,7 +27,7 @@ export default function Courses({ selectedId = null }) {
    const others = courses.filter((c) => String(c.id) !== String(selectedId)) ?? null
 
    return (
-    <div className="space-y-4">
+    <div>
       <Link to="/"><button>Home</button></Link>
 
       {selected ? (
@@ -38,7 +38,7 @@ export default function Courses({ selectedId = null }) {
           </Link>
         </>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div>
           <AnimatePresence>
             {courses.map((c) => (
               <AnimatedElement key={c.id}>

@@ -15,22 +15,15 @@ export default function Card({
 }: Props) {
   return (
     <motion.article
-      // your base styling
       className={[
-        'block',
-        'w-full',
-        'max-w-none',
-        'min-w-0',
-        'rounded-xl',
-        'shadow-md',
-        'p-6',
-        'mb-5',
+        'w-screen', 
         className,
       ].join(' ')}
       
       // Framer Motion props:
       whileHover={{ scale: 1.03, boxShadow: '0 10px 15px rgba(0,0,0,0.1)' }}
       transition={{ duration: 0.3, ease: 'easeOut' }}
+      style={{ width: '100%' }}
     >
       <h3 className={`text-lg font-semibold mb-2 ${titleClassName}`}>
         {title}

@@ -4,13 +4,13 @@ import Sections from "./Sections.jsx";
 export default function SectionShell() {
   const { sectionId } = useParams();
   return (
-    <div className="grid gap-4 p-4 lg:grid-cols-3">
-      <div> 
+    <div>
+      <div className="min-w-0"> 
         <Sections selectedId={sectionId ?? null} />
       </div>
 
       {sectionId && (
-        <div>
+        <div className="min-w-0">
           <Outlet />
         </div>
       )}

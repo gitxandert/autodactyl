@@ -39,17 +39,17 @@ export default function Sections({ selectedId = null }) {
    const others = sections.filter((s) => String(s.id) !== String(selectedId)) ?? null
 
    return (
-      <div className="space-y-4">
+      <div>
         {selected ? (
           <>
-            <Card title={selected.title} className="sections" style={{ width: '100%', maxWidth: 'none' }}></Card>
+            <Card title={selected.title} className="sections"></Card>
           </>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2"> 
+          <div> 
             <AnimatePresence>
               {sections.map((s) => (
                 <AnimatedElement key={s.id}>
-                  <Link to={`/courses/${courseId}/${s.id}`} className="block w-full">
+                  <Link to={`/courses/${courseId}/${s.id}`} className="block w-screen">
                     <Card title={s.title} className="sections w-full">
                       <p className="text-sm text-muted-foreground">
                         {s.description}
