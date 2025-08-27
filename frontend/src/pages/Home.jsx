@@ -8,46 +8,49 @@ export default function Home() {
 
    return (
       <div className="main">
-         <Link to="/about">
-            <button 
-               className="mainButton-About"
-               onClick={() => tintChange("rgba(255, 50, 255, .5)")}
-            >
-              About
-            </button>
-         </Link>
-         <Link to="/builder">
+         <img src="public/autodactyl.svg" alt="autodactyl logo" />
+         <div className="mainButtons">
+           <Link to="/about">
              <button 
-               className="mainButton-Builder"
-               onClick={() => tintChange("rgba(50, 255, 50, .5)")}
+              className="mainButton-About"
+              onClick={() => tintChange("rgba(255, 50, 255, .5)")}
              >
-               Builder
+               About
              </button>
-         </Link>
-         <Link to="/community">
-            <button
+           </Link>
+           <Link to="/builder">
+             <button 
+              className="mainButton-Builder"
+              onClick={() => tintChange("rgba(50, 255, 50, .5)")}
+              >
+                Builder
+             </button>
+           </Link>
+           <Link to="/community">
+             <button
               className="mainButton-Community"
               onClick={() => tintChange("rgba(255, 255, 50, .5)")}
-            >
-              Community
-            </button>
-         </Link>
-         <Link to="/courses">
-            <button 
+             >
+               Community
+             </button>
+           </Link>
+           <Link to="/courses">
+             <button 
               className="mainButton-Courses"
               onClick={() => tintChange("rgba(50, 50, 255, .5)")}
-            >
-              Courses
-            </button>
-         </Link>
-         <Link to="/profile">
-            <button 
+             >
+               Courses
+             </button>
+           </Link>
+           <Link to="/profile">
+             <button 
               className="mainButton-Profile"
               onClick={() => tintChange("rgba(255, 50, 50, .5)")}
-            >
-              Profile
-            </button>
-         </Link>
+             >
+               Profile
+             </button>
+           </Link>
+        </div>
       </div>
    )
 }

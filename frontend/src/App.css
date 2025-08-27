@@ -25,47 +25,40 @@ body {
 /* main (Home.jsx) */
 
 .main {
-   /*
-   display: grid;
-   grid-template-columns: repeat(11, [main-col] 1fr);
-   grid-template-rows:    repeat(7, [main-row] 1fr);
-   gap: 1rem;
-   */
+  display: flex;
+  justify-content: center;
+  gap: 2em;
+}
+
+.mainButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
 }
 
 .mainButton-About {
    background-color: rgba(255, 50,  255, .7);
    color: rgba(220,  255, 220,  .7);
-   grid-row:    main-row 4;
-   grid-column: main-col 2;
 }
 
 .mainButton-Builder {
    background-color: rgba(50,  255, 50,  .7);
    color: rgba(255, 255,  255, .7);
-   grid-column: main-col 4;
-   grid-row:    main-row 2;
 }
 
 .mainButton-Community {
    background-color: rgba(255, 255, 50,  .7);
    color: rgba(255, 50,  5, .7);
-   grid-column: main-col 6;
-   grid-row:    main-row 6;
 }
 
 .mainButton-Courses {
    background-color: rgba(50,  50,  255, .7);
    color: rgba(255, 255, 50, .7);
-   grid-column: main-col 8;
-   grid-row:    main-row 2;
 }
 
 .mainButton-Profile {
    background-color: rgba(255, 50,  50,  .7);
    color: rgba(50,  50,  255, .7);
-   grid-column: main-col 10;
-   grid-row:    main-row 4;
 }
 
 {/* @keyframes mainSpin {
