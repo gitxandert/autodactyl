@@ -79,7 +79,7 @@ export default function Chat({
   const [busy, setBusy] = useState(false);
   const [pendingServer, setPendingServer] = useState<any>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
- 
+
   useEffect(() => {
     let initial: ChatMessage[] = [];
     if (Array.isArray(initialMessages)) initial = initialMessages;
@@ -144,20 +144,22 @@ export default function Chat({
 
       typeMessage(replyText ?? "", asst, setMessages, 25);
       onReply?.(asst, [...messages, asst], data);
-
-      setSpecialMessage(() => {
-         if (replyStatus === 1) {
-            if (replyBody_md === "") {
-               return "Finish";
+      
+      if (specialBtn) {
+         setSpecialMessage(() => {
+            if (replyStatus === 1) {
+               if (replyBody_md === "") {
+                  return "Finish";
+               }
+               else {
+                  return "Continue";
+               }
             }
             else {
-               return "Continue";
+               return "Finished";
             }
-         }
-         else {
-            return "Finished";
-         }
-      })
+         })
+      }
     } catch (err: any) {
       const errMsg: ChatMessage = {
         id: `${Date.now()}-e`,
@@ -220,7 +222,6 @@ export default function Chat({
         onChange={(e) => setInput(e.target.value)}
         placeholder={placeholder}
         style={{
-          width: "100%",
           minHeight: 90,
           marginTop: 4,
           padding: 10,
