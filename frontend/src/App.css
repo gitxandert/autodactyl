@@ -70,6 +70,30 @@ body {
    animation: mainSpin 20s linear infinite;
 } */}
 
+/* Draft.jsx */
+.draft {
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  gap: 0;
+  overflow: auto;
+}
+
+.draft-course {
+  background-color: hsl(299 68.7% 34.5%);
+  color: hsl(0, 0%, 100%); 
+}
+
+.draft-section {
+  background-color: hsl(167 63.5% 48.9%);
+  color: hsl(0, 0%, 100%);
+}
+
+.draft-lesson {
+  background-color: hsl(49 100% 67.2%);
+  color: hsl(0, 0%, 100%);
+}
+
 /* course pages */
 
 .courses {
