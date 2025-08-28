@@ -4,6 +4,7 @@ import { useApi } from "../api/useApi.jsx";
 import Home from "./Home.jsx";
 import Courses from "./course_pages/Courses.jsx";
 import Chat from "../components/Chat.tsx";
+import Draft from "../components/Draft.jsx";
 import HomeBtn from "../components/HomeBtn.jsx";
 
 function useSessionId(key = "course_session_id") {
@@ -27,8 +28,8 @@ export default function Builder() {
    const { LLMchat, approveCourse } = useApi();
    const [input, setInput] = useState("");
    const [busy, setBusy] = useState(false);
-   const [log, setLog] = useState([]); // {role: 'user'|'system', text}
-   const [draft, setDraft] = useState(null); // whatever your backend returns as draft
+   const [log, setLog] = useState([]);
+   const [draft, setDraft] = useState(null);
    const outRef = useRef(null);
 
    useEffect(() => {
@@ -88,9 +89,10 @@ export default function Builder() {
               </div>
               <div>
                 <h2 style={{ fontSize: 18, marginBottom: 8 }}>Current Draft</h2>
-                <pre style={{ height: 260, overflow: "auto", border: "1px solid #eee", borderRadius: 8, padding: 10, background: "#111", color: "#e6e6e6" }}>
+                {/*<pre style={{ height: 260, overflow: "auto", border: "1px solid #eee", borderRadius: 8, padding: 10, background: "#111", color: "#e6e6e6" }}>
                   {draft ? pretty(draft) : "—"}
-                </pre>
+                </pre>*/}
+                {draft ? <Draft draft={draft} /> : "_"}
               </div>
             </div>
          </div>
