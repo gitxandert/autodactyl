@@ -185,6 +185,17 @@ export default function Chat({
     }
   }
 
+  const [chatPrompt, setChatPrompt] = useState("");
+  
+  useEffect(() => {
+    if (purpose === "learn") {
+      setChatPrompt("ask a question");
+    }
+    else if (purpose === "build") {
+      setChatPrompt("describe your course");
+    }
+  }, [purpose]);
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
       <div
@@ -214,7 +225,7 @@ export default function Chat({
       </div>
 
       <label htmlFor="chat-input" style={{ fontWeight: 600 }}>
-        {purpose} 
+        {chatPrompt} 
       </label>
       <textarea
         id="chat-input"

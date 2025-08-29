@@ -29,10 +29,16 @@ export default function Courses({ selectedId = null }) {
 
    return (
     <div>
-      <HomeBtn />
+      <div className="flex justify-center gap-3">
+        <HomeBtn className="border" />
+        {selected ? (
+          <Link to="/courses"><button className="border" style={{ backgroundColor: 'rgba(50, 50, 255, .7)' }}>Courses</button></Link>
+        ) : (
+          <></>
+        )}
+      </div>
       {selected ? (
         <>
-          <Link to="/courses"><button style={{ backgroundColor: 'rgba(50, 50, 255, .7)' }}>Courses</button></Link>
           <Link to={`/courses/${selected.id}`} className="block">
             <Card title={selected.title} className="courses"></Card>
           </Link>

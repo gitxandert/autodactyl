@@ -92,18 +92,18 @@ export default function Lessons() {
    if (error) return <div className="p-4 text-red-500">Error: {error}</div>;
    return (
       <div className="lessons">
-         <AnimatedElement>
+         <AnimatedElement className="lessons-list">
          <h2 className="lessons-header">Lessons</h2>
-         <div className="lessons-list">
+         <div>
             <ol className="dynamicList">
                {lessons.map((l) => (
-                  <li key={l.id} onClick={() => showDescription(l)} style={l.id === currentLesson["id"] ? {border: "2px solid cyan"} : {border: "none"}}>{l.title}</li>
+                  <li key={l.id} onClick={() => showDescription(l)} style={l.id === currentLesson["id"] ? {border: "3px solid yellow"} : {border: "none"}}>{l.title}</li>
                ))}
             </ol>
          </div>
          </AnimatedElement>
-         <AnimatedElement>
-         <div className="lessons-interact">
+         <AnimatedElement className="lessons-interact">
+         <div>
             {showChat ? (
                <>
                   <Chat
@@ -115,12 +115,12 @@ export default function Lessons() {
                    specialBtn={true}
                    specialMess={specialMess}
                    />
-                  <button onClick={() => setShowChat(false)}>Exit</button>
+                  <button className="exitChat" onClick={() => setShowChat(false)}>Exit</button>
                </>
             ) : description ? (
                <>
                   <p>{description}</p>
-                  <button onClick={() => openLesson()}>Open</button>
+                  <button className="lessonBtn" onClick={() => openLesson()}>Open</button>
                </>
             ) : (
                <em>Select a lesson to see its description</em>
