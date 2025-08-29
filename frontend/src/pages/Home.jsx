@@ -8,7 +8,7 @@ export default function Home() {
 
    return (
       <div className="main">
-         <img src="/autodactyl.svg" alt="autodactyl logo" />
+         <img className="logo" src="/autodactyl.svg" alt="autodactyl logo" />
          <div className="mainButtons">
            <Link to="/about">
              <button 

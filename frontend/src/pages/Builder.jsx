@@ -6,6 +6,7 @@ import Courses from "./course_pages/Courses.jsx";
 import Chat from "../components/Chat.tsx";
 import Draft from "../components/Draft.jsx";
 import HomeBtn from "../components/HomeBtn.jsx";
+import AnimatedElement from "../utils/AnimatedElement.tsx";
 
 function useSessionId(key = "course_session_id") {
   const [sessionId, setSessionId] = useState("");
@@ -62,6 +63,7 @@ export default function Builder() {
             <HomeBtn />
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 24 }}>
               <div>
+                <AnimatedElement>
                 <h2 style={{ fontSize: 18, marginBottom: 8 }}>Chat</h2>
                 <Chat
                   purpose={"build"}
@@ -85,15 +87,15 @@ export default function Builder() {
               
                     if (maybeDraft) setDraft(maybeDraft);
                   }}
-                  />
+                />
+              </AnimatedElement>
               </div>
+              <AnimatedElement>
               <div>
                 <h2 style={{ fontSize: 18, marginBottom: 8 }}>Current Draft</h2>
-                {/*<pre style={{ height: 260, overflow: "auto", border: "1px solid #eee", borderRadius: 8, padding: 10, background: "#111", color: "#e6e6e6" }}>
-                  {draft ? pretty(draft) : "—"}
-                </pre>*/}
-                {draft ? <Draft draft={draft} /> : "_"}
+                {draft ? <Draft draft={draft} /> : ":)"}
               </div>
+              </AnimatedElement>
             </div>
          </div>
       </section>
