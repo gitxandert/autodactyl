@@ -4,13 +4,14 @@ from langchain_core.output_parsers import BaseOutputParser
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.chat_history import InMemoryChatMessageHistory
 
-from llm_operations.llm_class import LLM
-
-import json, sqlite3
+import json
 from textwrap import dedent
 
+from psycopg import Connection
+
+from llm_operations.llm_class import LLM
 from llm_operations.course_building.build_utilities import _slugify, _validate_draft
-from courses.database import open_db, create_course, create_lesson, create_section 
+from courses.database import create_course, create_lesson, create_section 
 
 class CourseBuildSession:
     _session = {}
@@ -88,10 +89,7 @@ def build_course(message: str, session_id: str="buildcourse"):
             options={
                 "temperature": 0.2, 
                 "num_ctx": 8192
-            }
-        )
-
-    print(f"{session_id}")
+            })
 
     chain = COURSE_PROMPT | model | JsonOutputParser()
 
@@ -106,9 +104,9 @@ def build_course(message: str, session_id: str="buildcourse"):
 
     return chain_with_memory.invoke({"input": message}, cfg)
 
-def approve_course(session_id: str, db_path: str) -> int:
+def approve_course(con: Connection, session_id: str) -> int:
     """
-    Pull the last AI draft for `session_id`, parse/validate it, and write to SQLite.
+    Pull the last AI draft for `session_id`, parse/validate it, and write to Postres.
     Returns the new course_id.
     """
     # 1) get the approved draft
@@ -119,46 +117,46 @@ def approve_course(session_id: str, db_path: str) -> int:
     slug = _slugify(title)
 
     # 3) upsert-ish slug guard (optional): ensure unique slugs by suffixing -2, -3, ...
-    def _ensure_unique_slug(con, base_slug: str) -> str:
+    def _ensure_unique_slug(con: Connection, base_slug: str) -> str:
         s = base_slug
         n = 1
         while True:
-            row = con.execute("SELECT 1 FROM courses WHERE slug = ? LIMIT 1", (s,)).fetchone()
-            if not row:
-                return s
+            print("ensuring unique slug")
+            with con.cursor() as cur:
+                row = cur.execute("SELECT 1 FROM courses WHERE slug = %s LIMIT 1", (s,)).fetchone()
+                if not row:
+                    return s
             n += 1
             s = f"{base_slug}-{n}"
 
     # 4) write to DB: transactionally
-    con = open_db(db_path)
     try:
-        with con:
-            unique_slug = _ensure_unique_slug(con, slug)
-            course_id = create_course(
-                con, title=title, slug=unique_slug, description=description
+        unique_slug = _ensure_unique_slug(con, slug)
+        course_id = create_course(
+            con, title=title, slug=unique_slug, description=description
+        )
+
+        # iterate the *normalized* sections
+        for sec in sections:
+            section_id = create_section(
+                con,
+                course_id=course_id,
+                title=sec["title"].strip(),
+                position=int(sec["position"]),
             )
 
-            # iterate the *normalized* sections
-            for sec in sections:
-                section_id = create_section(
+            # nest lessons under their section
+            for l in sec["lessons"]:
+                create_lesson(
                     con,
                     course_id=course_id,
-                    title=sec["title"].strip(),
-                    position=int(sec["position"]),
+                    section_id=section_id,
+                    title=l["title"].strip(),
+                    description=l["description"],
+                    position=int(l["position"]),
                 )
-
-                # nest lessons under their section
-                for l in sec["lessons"]:
-                    create_lesson(
-                        con,
-                        course_id=course_id,
-                        title=l["title"].strip(),
-                        description=l["description"],
-                        position=int(l["position"]),
-                        section_id=section_id,
-                    )
 
         reset_draft()
         return course_id
     finally:
-        con.close() 
+        print("Added course to database")

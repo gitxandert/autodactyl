@@ -15,12 +15,13 @@
 # - if body_md does not have content, simply display messages, with no option
 #   to continue
 
-import os, sqlite3, json
+import os, json
+import psycopg
 
 from courses.database import get_single_lesson, update_lesson_sql
 from llm_operations.course_teaching.lesson_helpers import generate_lesson, answer_lesson_question, summarize_lesson, format_as_ChatMsg
 
-DB_PATH = os.environ.get("SQLITE_PATH", "app/courses/database/courses.sqlite")
+DB_PATH = os.environ["DATABASE_URL"]
 
 class LessonSession:
     _session = {}
@@ -31,7 +32,7 @@ class LessonSession:
         if lesson is not None:
             return lesson
         else:
-            with sqlite3.connect(DB_PATH) as con:
+            with psycopg.connect(DB_PATH) as con:
                 LessonSession._session[lesson_id] = get_single_lesson(con, lesson_id)
             return LessonSession._session[lesson_id]
 
@@ -42,12 +43,12 @@ class LessonSession:
 
     @staticmethod
     def push_to_sql(lesson):
-        with sqlite3.connect(DB_PATH) as con:
+        with psycopg.connect(DB_PATH) as con:
             update_lesson_sql(con, lesson)
+        con.commit()
         LessonSession._session = {}
 
 def iterate_body_md(body_md: str):
-    print(f"{body_md}")
     parts = body_md.split("\n\n", 1)
     first_paragraph = parts[0]
     rest = parts[1] if len(parts) > 1 else ""
@@ -72,13 +73,7 @@ def iterate_lesson(message: str, session_id: str):
 
     return_message = ""
     
-    if message == "Leave":
-        # the user is leaving the session
-        if lesson["status"] == 1:
-            # if the lesson has started, but not finished
-            LessonSession.push_to_SQL(lesson)
-        return "Goodbye!"       
-    elif message == "Finish":
+    if message == "Finish":
         # the user has clicked "Finish"
         summary = summarize_lesson(lesson["messages"])
         lesson["summary"] = summary
@@ -93,7 +88,7 @@ def iterate_lesson(message: str, session_id: str):
         lesson["body_md"] = generate_lesson(lesson)
         lesson["status"] = 1 # status 1 means lesson has started
         return_message, lesson["body_md"] = iterate_body_md(lesson["body_md"])
-    elif message == "Resume" or  message == "Continue":
+    elif message == "Continue":
         # the user is continuing a lesson, so the next part of body_md
         # needs to be added to lesson["messages"]
         return_message, lesson["body_md"] = iterate_body_md(lesson["body_md"])

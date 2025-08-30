@@ -95,6 +95,6 @@ def _validate_draft(draft: Dict[str, Any]) -> Tuple[str, Optional[str], List[Dic
             "lessons": normalized_lessons,
         })
         
-    print("Draft validated")
+    print(f"{draft}")
     return title, description, normalized_sections
 

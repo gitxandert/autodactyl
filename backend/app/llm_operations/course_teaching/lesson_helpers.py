@@ -2,10 +2,12 @@ from langchain_core.prompts import PromptTemplate
 
 from llm_operations.llm_class import LLM
 
-import os, sqlite3
+import os
+import psycopg
+
 from courses.database import get_course_info, get_summaries, get_future_lessons
 
-DB_PATH = os.environ.get("SQLITE_PATH", "app/courses/database/courses.sqlite")
+DB_PATH = os.environ["DATABASE_URL"]
 
 LESSON_PROMPT = PromptTemplate.from_template("""
 You are writing a lesson script.
@@ -23,16 +25,12 @@ Future lessons: {future_lessons}
 """)
 
 def generate_lesson(l: dict):
-    with sqlite3.connect(DB_PATH) as con:
-        print("getting course info")
+    with psycopg.connect(DB_PATH) as con:
         c_title, c_description = get_course_info(con, l["course_id"])
-        print("getting summaries")
-        print(f"{l}")
         summaries = get_summaries(con, 
                                   l["course_id"],
                                   l["section_id"], 
                                   l["position"])
-        print("getting future lessons")
         future_lessons = get_future_lessons(con, 
                                             l["course_id"],
                                             l["section_id"], 
