@@ -86,8 +86,18 @@ body {
     opacity: 1;
   }
 }
+/* Chat */
+
+.chatButton {
+  background: "#2563eb";
+  color: "#fff";
+  border: 0;
+  border-radius: 8;
+  padding: "8px 12px";
+}
 
 /* Draft.jsx */
+
 .draft {
   display: flex;
   flex-direction: column;
@@ -155,8 +165,10 @@ body {
 }
 
 .exitChat {
-  background-color: hsl(0, 0%, 0%);
-  color: hsl(13, 56%, 53%);
+  background-color: hsl(49, 100%, 67.2%);
+  color: hsl(0, 0%, 0%);
+  border-radius: 100px 8px 8px 100px;
+  align-self: start;
 }
 
 .dynamicList {
@@ -185,6 +197,20 @@ body {
   color: hsl(0, 0%, 0%);
   cursor: pointer;
 }
+
+.lessons-chat {
+  margin: 8px;
+  animation: expand 0.2s ease forwards;
+}
+
+@keyframes expand {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
+  }
+}   
 
 @media (prefers-color-scheme: dark) {
 

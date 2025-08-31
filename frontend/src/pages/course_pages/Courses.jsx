@@ -29,7 +29,7 @@ export default function Courses({ selectedId = null }) {
 
    return (
     <div>
-      <div className="flex justify-center gap-3">
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '8px' }}>
         <HomeBtn className="border" />
         {selected ? (
           <Link to="/courses"><button className="border" style={{ backgroundColor: 'rgba(50, 50, 255, .7)' }}>Courses</button></Link>

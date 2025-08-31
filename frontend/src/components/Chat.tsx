@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useApi } from "../api/useApi.jsx";
 
 export type ChatMessage = {
@@ -195,10 +196,26 @@ export default function Chat({
       setChatPrompt("describe your course");
     }
   }, [purpose]);
+  
+  const target = typeof window !== "undefined" && document.getElementById("continue-top");
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-      <div
+      {specialBtn && target ?
+          createPortal(
+            <button
+              onClick={() => void specialsend()}
+              disabled={busy || disabled || specialMessage === "finished"}
+              style={{
+                ...btnStyle,
+                background: busy || disabled ? "#9fb7aa" : "#2563eb",
+             }}
+            >
+              {specialMessage}
+            </button>, target
+          ) : <></>  
+       }
+       <div
         ref={scrollRef}
         style={{
           height,
@@ -247,7 +264,7 @@ export default function Chat({
       <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
         {specialBtn ?
           <button
-            onClick={() => void specialSend()}
+            onClick={() => void specialsend()}
             disabled={busy || disabled || specialMessage === "Finished"}
             style={{
               ...btnStyle,

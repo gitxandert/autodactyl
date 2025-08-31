@@ -105,7 +105,12 @@ export default function Lessons() {
          <AnimatedElement className="lessons-interact">
          <div>
             {showChat ? (
-               <>
+               <div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)' }}>
+                    <button className="exitChat chatButton" onClick={() => setShowChat(false)}>Exit</button>
+                  <div id="continue-top" /> {/* Chat Continue portal target */}
+                  </div>
+                  <div className="lessons-chat">
                   <Chat
                    purpose={"learn"}
                    sessionId={currentLesson.id}
@@ -114,9 +119,9 @@ export default function Lessons() {
                    initialMessages={initialMessages}
                    specialBtn={true}
                    specialMess={specialMess}
-                   />
-                  <button className="exitChat" onClick={() => setShowChat(false)}>Exit</button>
-               </>
+                  />
+                  </div>
+               </div>
             ) : description ? (
                <>
                   <p>{description}</p>
