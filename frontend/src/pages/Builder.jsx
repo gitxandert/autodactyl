@@ -19,10 +19,6 @@ function useSessionId(key = "course_session_id") {
   return sessionId;
 }
 
-function pretty(obj) {
-  try { return JSON.stringify(obj, null, 2); } catch { return String(obj); }
-}
-
 export default function Builder() {
    const navigate = useNavigate();
    const sessionId = useSessionId();

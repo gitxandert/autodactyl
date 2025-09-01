@@ -108,17 +108,35 @@ body {
 
 .draft-course {
   background-color: hsl(299 68.7% 34.5%);
-  color: hsl(0, 0%, 100%); 
+  color: hsl(0, 0%, 100%);
+  transform: translate(1000px, 0px);
+  animation: draft-enter 1s ease-in-out forwards;
 }
 
 .draft-section {
   background-color: hsl(167 63.5% 48.9%);
   color: hsl(0, 0%, 100%);
+  transform: translate(1000px, 0px);
+  animation: draft-enter 1s ease-in-out forwards;
+  animation-delay: 0.5s;
 }
 
 .draft-lesson {
   background-color: hsl(49 100% 67.2%);
   color: hsl(0, 0%, 100%);
+  transform: translate(1000px, 0px);
+  animation: draft-enter 1s ease-in-out forwards;
+  animation-delay: 0.75s;
+}
+
+@keyframes draft-enter {
+  0% {
+    transform: translate(1000px, 0px);
+  }
+
+  100% {
+    transform: translate(0px, 0px);
+  }
 }
 
 /* course pages */
