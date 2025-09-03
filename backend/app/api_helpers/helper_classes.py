@@ -15,3 +15,7 @@ class ChatMsg(BaseModel):
 
 class ApproveMsg(BaseModel):
     session_id: str
+
+class LogIn(BaseModel):
+    username: str
+    password: str

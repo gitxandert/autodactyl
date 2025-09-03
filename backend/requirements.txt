@@ -6,3 +6,5 @@ fastapi
 uvicorn[standard]
 pydantic
 psycopg[binary]==3.2.*
+redis>=5
+bcrypt
