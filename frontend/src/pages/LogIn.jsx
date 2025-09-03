@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function LogIn({ onSuccess }) {
   const [username, setUsername] = useState("");
@@ -29,9 +29,15 @@ export default function LogIn({ onSuccess }) {
       credentials: "include",
       body: JSON.stringify({ username, password }),
     });
-    if (r.ok) setRegister("false");
+    if (r.ok) setSuccess("true");
     else setError("Username already exists");
   }
+
+  useEffect(() => {
+    if (success) {
+      setRegister(false);
+    }
+  }, [success]);
 
   async function handleSubmit(e) {
     if (register) {
@@ -44,14 +50,14 @@ export default function LogIn({ onSuccess }) {
 
   return (
     <div>
-    {success && <div>"Successfully registered account! Try logging in."</div>}
+    {success && <div>Successfully registered account! Try logging in.</div>}
     <form onSubmit={handleSubmit}>
-      <input value={username} onChange={e => setUsername(e.target.value)} />
-      <input type="password" value={password} onChange={e => setPassword(e.target.value)} />
-      <button type="submit">{register ? "Register" : "Log In"}</button>
-      {error && <div role="alert">{error}</div>}
+      <input className="loginInput" type="username" value={username} onChange={e => setUsername(e.target.value)} />
+      <input className="loginInput" type="password" value={password} onChange={e => setPassword(e.target.value)} />
+      <button className="loginBtn" type="submit">{register ? "Register" : "Log In"}</button>
+      {error && <div role="alert" style={{ color: "rgb(255, 0, 0)" }}>{error}</div>}
     </form>
-    <div style={{ cursor: "pointer" }} onClick={() => setRegister(!register)}>{register ? "Return to log in" : "New user"}</div>
+    <div style={{ cursor: "pointer", color: "rgb(205, 115, 40)" }} onClick={() => setRegister(!register)}>{register ? "Return to log in" : "New user"}</div>
     </div>
   );
 }

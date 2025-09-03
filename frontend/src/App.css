@@ -86,6 +86,23 @@ body {
     opacity: 1;
   }
 }
+
+/* global Home button */
+.homeBtn {
+ background-color: rgba(30, 235, 235, .7);
+ animation: fromAbove 0.5s ease forwards; 
+}
+
+@keyframes fromAbove {
+  from {
+    transform: translate(0px, -1000px);
+  }
+
+  to {
+    transform: translate(0px, 0px);
+  }
+}
+
 /* Chat */
 
 .chatButton {
@@ -137,6 +154,20 @@ body {
   100% {
     transform: translate(0px, 0px);
   }
+}
+
+/* LogIn */
+
+.loginInput {
+  border-radius: 8px;
+  margin: 8px;
+  background-color: rgba(225, 70,  225, .7);
+  color: rgba(220,  255, 220,  .7);
+}
+
+.loginBtn {
+  background-color: rgba(205, 50,  205, .7);
+  color: rgba(220,  255, 220,  .7);
 }
 
 /* course pages */
