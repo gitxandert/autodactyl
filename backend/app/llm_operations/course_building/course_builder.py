@@ -104,7 +104,7 @@ def build_course(message: str, session_id: str="buildcourse"):
 
     return chain_with_memory.invoke({"input": message}, cfg)
 
-def approve_course(con: Connection, session_id: str) -> int:
+def approve_course(con: Connection, session_id: str, user_id: int) -> int:
     """
     Pull the last AI draft for `session_id`, parse/validate it, and write to Postres.
     Returns the new course_id.
@@ -133,7 +133,7 @@ def approve_course(con: Connection, session_id: str) -> int:
     try:
         unique_slug = _ensure_unique_slug(con, slug)
         course_id = create_course(
-            con, title=title, slug=unique_slug, description=description
+            con, user_id=user_id, title=title, slug=unique_slug, description=description
         )
 
         # iterate the *normalized* sections
