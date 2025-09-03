@@ -49,7 +49,6 @@ export default function Lessons() {
 
    function setSpecialMessage() {
      const lstatus = currentLesson["status"];
-     console.log(currentLesson);
      if (lstatus === 0) {
        setSpecialMess("Start");
      }

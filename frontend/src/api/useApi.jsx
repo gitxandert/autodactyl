@@ -4,7 +4,6 @@ const API_BASE = (import.meta?.env?.VITE_API_BASE ?? "").replace(/\/$/, "");
 
 export function useApi(base = API_BASE) {
    const LLMchat = async ({purpose, message, session_id}) => {
-      console.log({purpose, message, session_id});
       const sid = String(session_id);
       const res = await fetch(`${base}/api/chat`, {
          method: "POST",
@@ -20,7 +19,6 @@ export function useApi(base = API_BASE) {
    };
 
    const approveCourse = async (session_id) => {
-      console.log(session_id);
       const res = await fetch(`${base}/api/approve`, {
          method: "POST",
          headers: { "Content-Type": "application/json" },
