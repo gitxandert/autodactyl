@@ -78,7 +78,7 @@ async def logout(request: Request, response: Response):
 @app.get("/api/me")
 async def me(user_id: str = Depends(session.require_user_id), con: Connection = Depends(get_conn)):
     user = db.get_user_by_id(con, user_id)
-    return {"id": user["id"], "username": user["username"]}
+    return {"ok": True, "result": user}; 
 
 @app.post("/api/register")
 def register(data: LogIn, con: Connection = Depends(get_conn)):

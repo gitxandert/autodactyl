@@ -3,6 +3,20 @@ import { useCallback } from "react";
 const API_BASE = (import.meta?.env?.VITE_API_BASE ?? "").replace(/\/$/, ""); 
 
 export function useApi(base = API_BASE) {
+   const getUser = useCallback(async () => {
+      const res = await fetch(`${base}/api/me`, {
+         credentials: "include",
+         headers: { Accept: "application/json" },
+      });
+
+      if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
+      console.log(res);
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || "Failed to get user info.");
+      
+      return json.result;
+   }, []);
+
    const LLMchat = async ({purpose, message, session_id}) => {
       const sid = String(session_id);
       const res = await fetch(`${base}/api/chat`, {
@@ -28,7 +42,6 @@ export function useApi(base = API_BASE) {
          return res.json();
    };
 
-// this will need to incorporate a user_id eventually
    const listCourses = useCallback(async () => {
       const res = await fetch(`${base}/api/list-courses`, {
          credentials: "include",
@@ -74,6 +87,7 @@ export function useApi(base = API_BASE) {
    },[]);
 
    return {
+      getUser,
       LLMchat,
       approveCourse,
       listCourses,

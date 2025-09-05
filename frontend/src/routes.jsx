@@ -16,7 +16,7 @@ import Lessons from "./pages/course_pages/Lessons.jsx";
 
 export default function AppRoutes() {
   return (
-    <div className="display:block w-screen">
+    <div>
       {/* Routed content */}
       <main>
         <Routes>
