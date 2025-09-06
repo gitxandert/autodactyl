@@ -5,8 +5,7 @@ from llm_operations.llm_class import LLM
 import os
 import psycopg
 
-from courses.database import get_course_info, get_summaries, get_future_lessons
-
+import courses.database as db
 DB_PATH = os.environ["DATABASE_URL"]
 
 LESSON_PROMPT = PromptTemplate.from_template("""
@@ -26,12 +25,12 @@ Future lessons: {future_lessons}
 
 def generate_lesson(l: dict):
     with psycopg.connect(DB_PATH) as con:
-        c_title, c_description = get_course_info(con, l["course_id"])
-        summaries = get_summaries(con, 
+        c_title, c_description = db.get_course_info(con, l["course_id"])
+        summaries = db.get_summaries(con, 
                                   l["course_id"],
                                   l["section_id"], 
                                   l["position"])
-        future_lessons = get_future_lessons(con, 
+        future_lessons = db.get_future_lessons(con, 
                                             l["course_id"],
                                             l["section_id"], 
                                             l["position"])

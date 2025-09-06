@@ -18,8 +18,8 @@
 import os, json
 import psycopg
 
-from courses.database import get_single_lesson, update_lesson_sql
-from llm_operations.course_teaching.lesson_helpers import generate_lesson, answer_lesson_question, summarize_lesson, format_as_ChatMsg
+import courses.database as db
+import llm_operations.course_teaching.lesson_helpers as hlpr
 
 DB_PATH = os.environ["DATABASE_URL"]
 
@@ -33,7 +33,7 @@ class LessonSession:
             return lesson
         else:
             with psycopg.connect(DB_PATH) as con:
-                LessonSession._session[lesson_id] = get_single_lesson(con, lesson_id)
+                LessonSession._session[lesson_id] = db.get_single_lesson(con, lesson_id)
             return LessonSession._session[lesson_id]
 
     @staticmethod
@@ -44,7 +44,7 @@ class LessonSession:
     @staticmethod
     def push_to_sql(lesson):
         with psycopg.connect(DB_PATH) as con:
-            update_lesson_sql(con, lesson)
+            db.update_lesson_sql(con, lesson)
         con.commit()
         LessonSession._session = {}
 
@@ -67,25 +67,26 @@ def add_message(lesson, lid, new_message, role):
 def iterate_lesson(message: str, session_id: str):
     # convert session_id to int for SQL
     lid = int(session_id)
-
     # get lesson from LessonSessions (pulls lesson from SQL if not stored)
-    lesson = LessonSession.get_lesson(lid)
+    ls = LessonSession
+
+    lesson = s.get_lesson(lid)
 
     return_message = ""
     
     if message == "Finish":
         # the user has clicked "Finish"
-        summary = summarize_lesson(lesson["messages"])
+        summary = hlpr.summarize_lesson(lesson["messages"])
         lesson["summary"] = summary
         add_message(lesson, lid, summary, "application") 
         lesson["status"] = 2
-        LessonSession.push_to_sql(lesson)
+        ls.push_to_sql(lesson)
         return {"response": summary}
     elif message == "Start":
         # the user is starting a lesson for the first time
         # (status set to 0 if lesson has not been started)
         print("generating lesson")
-        lesson["body_md"] = generate_lesson(lesson)
+        lesson["body_md"] = hlpr.generate_lesson(lesson)
         lesson["status"] = 1 # status 1 means lesson has started
         return_message, lesson["body_md"] = iterate_body_md(lesson["body_md"])
     elif message == "Continue":
@@ -97,11 +98,11 @@ def iterate_lesson(message: str, session_id: str):
         # asked a question; answer_lesson_question will append the user's
         # message and the assistant's response to lesson["messages"]
         messages = json.loads(lesson["messages"])
-        return_message = answer_lesson_question(message, ".\n\n".join([m["content"] for m in messages]))
+        return_message = hlpr.answer_lesson_question(message, ".\n\n".join([m["content"] for m in messages]))
         add_message(lesson, lid, message, "user") 
     # update the lesson
     add_message(lesson, lid, return_message, "application") 
-    LessonSession.update_lesson(lid, lesson)
+    ls.update_lesson(lid, lesson)
     
     response = {"response": return_message, "status": lesson["status"], "body_md": lesson["body_md"]}
     return response

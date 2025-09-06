@@ -11,7 +11,7 @@ from psycopg import Connection
 
 from llm_operations.llm_class import LLM
 from llm_operations.course_building.build_utilities import _slugify, _validate_draft
-from courses.database import create_course, create_lesson, create_section 
+import courses.database as db 
 
 class CourseBuildSession:
     _session = {}
@@ -34,14 +34,13 @@ class CourseBuildSession:
     def reset_draft():
         CourseBuildSession._draft = {}
 
+# export
 def set_draft(draft: dict):
     CourseBuildSession.set_draft(draft)
 
+# export
 def get_draft():
     return CourseBuildSession.get_draft()
-
-def reset_draft():
-    CourseBuildSession.reset_draft()
 
 class JsonOutputParser(BaseOutputParser):
     def parse(self, text: str):
@@ -110,7 +109,8 @@ def approve_course(con: Connection, session_id: str, user_id: int) -> int:
     Returns the new course_id.
     """
     # 1) get the approved draft
-    draft = get_draft()
+    cbs = CourseBuildSession
+    draft = cbs.get_draft()
 
     # 2) validate & normalize
     title, description, sections = _validate_draft(draft)
@@ -121,7 +121,6 @@ def approve_course(con: Connection, session_id: str, user_id: int) -> int:
         s = base_slug
         n = 1
         while True:
-            print("ensuring unique slug")
             with con.cursor() as cur:
                 row = cur.execute("SELECT 1 FROM courses WHERE slug = %s LIMIT 1", (s,)).fetchone()
                 if not row:
@@ -132,13 +131,13 @@ def approve_course(con: Connection, session_id: str, user_id: int) -> int:
     # 4) write to DB: transactionally
     try:
         unique_slug = _ensure_unique_slug(con, slug)
-        course_id = create_course(
+        course_id = db.create_course(
             con, user_id=user_id, title=title, slug=unique_slug, description=description
         )
 
         # iterate the *normalized* sections
         for sec in sections:
-            section_id = create_section(
+            section_id = db.create_section(
                 con,
                 course_id=course_id,
                 title=sec["title"].strip(),
@@ -147,7 +146,7 @@ def approve_course(con: Connection, session_id: str, user_id: int) -> int:
 
             # nest lessons under their section
             for l in sec["lessons"]:
-                create_lesson(
+                db.create_lesson(
                     con,
                     course_id=course_id,
                     section_id=section_id,
@@ -156,7 +155,7 @@ def approve_course(con: Connection, session_id: str, user_id: int) -> int:
                     position=int(l["position"]),
                 )
 
-        reset_draft()
+        cbs.reset_draft()
         return course_id
     finally:
         print("Added course to database")
