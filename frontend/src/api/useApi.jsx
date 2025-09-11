@@ -86,13 +86,45 @@ export function useApi(base = API_BASE) {
       return json.result;
    },[]);
 
+  const listExercises = useCallback(async (lesson_id) => {
+      const id = Number(lesson_id);
+      const res = await fetch(`${base}/api/list-exercises?lesson_id=${id}`, {
+         credentials: "include",
+         headers: { Accept: "application/json" },
+      });
+
+      if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
+
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || "Failed to list exercises.");
+
+      return json.result;
+   },[]);
+
+  const getExercise = useCallback(async (ex_id) => {
+      const id = Number(ex_id);
+      const res = await fetch(`${base}/api/get-exercise?ex_id=${id}`, {
+         credentials: "include",
+         headers: { Accept: "application/json" },
+      });
+
+      if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
+
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || "Failed to get exercise.");
+
+      return json.result;
+   },[]);
+
    return {
       getUser,
       LLMchat,
       approveCourse,
       listCourses,
       listSections,
-      listLessons
+      listLessons,
+      listExercises,
+      getExercise
    };
 }
 

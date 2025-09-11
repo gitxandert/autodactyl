@@ -19,12 +19,20 @@ Create an exercise for the following lesson:
 {lesson}
 """)
 
+EXERCISE_SOLUTION_PROMPT = PromptTemplate.from_template("""
+You are a teacher for a course called {course}.
+
+You have just created an exercise for a lesson called {lesson} and need to have a solution for the exercise ready so that students can compare their solution with yours.
+
+Return a solution to the following exercise:
+{exercise}
+""")
+
 DB_PATH = os.environ["DATABASE_URL"]
 
 class Exercise:
     _exercise = ""
-    _answer = ""
-    _explanation = ""
+    _solution = ""
     _cid = None
     _sid = None
     _lid = None
@@ -33,35 +41,20 @@ class Exercise:
     def save_exercise():
         with psycopg.connect("DB_PATH") as con:
             if _cid is not None and _lid is not None:
-                db.push_exercise_to_sql(con, Exercise._exercise, Exercise._answer, Exercise._cid, Exercise.sid, Exercise._lid);
+                db.push_exercise_to_sql(con, Exercise._exercise, Exercise._solution, Exercise._cid, Exercise._sid, Exercise._lid);
 
     @staticmethod
-    def hold_exercise(ex: str):
+    def hold_exercise(ex: str, sol: str, cid: int, sid: int, lid: int):
         _exercise = ex
+        _solution = sol
         _cid = cid
         _sid = sid
         _lid = lid
-  
-    @staticmethod
-    def hold_answer(an: str):
-        _answer = an
-
-    @staticmethod
-    def get_exercise() -> Str:
-        return Exercise._exercise
-
-    @staticmethod
-    def get_answer() -> Str:
-        return Exercise._answer
-
-    @staticmethod
-    def get_explanation() -> Str:
-        return Exercise._explanation
 
     @staticmethod
     def reset():
         _exercise = ""
-        _answer = ""
+        _solution = ""
         _cid = None
         _sid = None
         _lid = None
@@ -69,6 +62,7 @@ class Exercise:
 def create_exercise(lid: int) -> Str:
     with psycopg.connect(DB_PATH) as con:
         lesson = db.get_single_lesson(con, lid)
+        lesson = lesson["title"]
         cid = lesson["course_id"]
         sid = lesson["section_id"]
         course, _ = db.get_course_info(con, cid)
@@ -79,28 +73,20 @@ def create_exercise(lid: int) -> Str:
     chain = EXERCISE_PROMPT | model
 
     exercise = chain.invoke({
-        "courses": course,
-        "lesson": messages,
+        "course":       course,
+        "lesson_title": lesson,
+        "lesson":       messages,
     }).content
-
-    Exercise.hold_exercise(exercise, cid, sid, lid);
-    return exercise
-
-ANSWER_EXERCISE_PROMPT = PromptTemplate.from_template("""
-You are a teacher for a course called {course}.
-
-""")
-
-def create_answer(model):
-    exercise = Exercise.get_exercise()
-    model = LLM.get_llm()
-    chain = ANSWER_EXERCISE_PROMPT | model
-    answer = chain.invoke({
+    
+    chain = EXERCISE_SOLUTION_PROMPT | model
+    solution = chain.invoke({
+        "course":   course,
+        "lesson":   lesson,
         "exercise": exercise,
     }).content
     
-    Exercise.hold_answer(answer)
-    return answer
+    Exercise.hold_exercise(exercise, solution, cid, sid, lid);
+    return exercise
 
 def commit_exercise():
     Exercise.save_exercise();
