@@ -93,14 +93,15 @@ def register(data: LogIn, con: Connection = Depends(get_conn)):
 
 @app.post("/api/chat")
 def chat(payload: ChatMsg):
+    print(f"{payload}")
     func = ChatRoutes.functions.get(payload.purpose)
     try:
         raw = func(message=payload.message, session_id=payload.session_id)
         if not func:
             raise HTTPException(status_code=400, detail=f"Unknown purpose '{payload.purpose}'")
-        
+       
         obj = coerce_model_json(raw)
-
+        
         # If obj["draft"] exists and is itself a JSON string, parse that too
         if isinstance(obj, dict) and "draft" in obj:
             draft = obj.get("draft")
@@ -148,7 +149,7 @@ def list_lessons(section_id: int = Query(..., ge=1), con: Connection = Depends(g
         return JSONResponse({"ok": False, "error": str(e)}, status_code=500)
 
 @app.get("/api/list-exercises")
-def list_exercises(lesson_id: Query(..., ge=1), con: Connection = Depends(get_conn)):
+def list_exercises(lesson_id: int = Query(..., ge=1), con: Connection = Depends(get_conn)):
     try:
         exercises = db.get_exercises(con, lesson_id)
         return {"ok": True, "result": exercises}

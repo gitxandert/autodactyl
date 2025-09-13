@@ -24,13 +24,13 @@ Future lessons: {future_lessons}
 """)
 
 def generate_lesson(l: dict):
-    with psycopg.connect(DB_PATH) as con:
-        c_title, c_description = db.get_course_info(con, l["course_id"])
-        summaries = db.get_summaries(con, 
+    con = db.open_db()
+    c_title, c_description = db.get_course_info(con, l["course_id"])
+    summaries = db.get_summaries(con, 
                                   l["course_id"],
                                   l["section_id"], 
                                   l["position"])
-        future_lessons = db.get_future_lessons(con, 
+    future_lessons = db.get_future_lessons(con, 
                                             l["course_id"],
                                             l["section_id"], 
                                             l["position"])

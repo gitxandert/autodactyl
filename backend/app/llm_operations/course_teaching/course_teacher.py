@@ -32,8 +32,8 @@ class LessonSession:
         if lesson is not None:
             return lesson
         else:
-            with psycopg.connect(DB_PATH) as con:
-                LessonSession._session[lesson_id] = db.get_single_lesson(con, lesson_id)
+            con = db.open_db()
+            LessonSession._session[lesson_id] = db.get_single_lesson(con, lesson_id)
             return LessonSession._session[lesson_id]
 
     @staticmethod
@@ -43,8 +43,8 @@ class LessonSession:
 
     @staticmethod
     def push_to_sql(lesson):
-        with psycopg.connect(DB_PATH) as con:
-            db.update_lesson_sql(con, lesson)
+        con = db.open_db()
+        db.update_lesson_sql(con, lesson)
         con.commit()
         LessonSession._session = {}
 
@@ -61,7 +61,7 @@ def add_message(lesson, lid, new_message, role):
     except Exception:
         messages = []
 
-    messages.append(format_as_ChatMsg(lid, role, new_message));
+    messages.append(hlpr.format_as_ChatMsg(lid, role, new_message));
     lesson["messages"] = json.dumps(messages)
  
 def iterate_lesson(message: str, session_id: str):
@@ -70,7 +70,7 @@ def iterate_lesson(message: str, session_id: str):
     # get lesson from LessonSessions (pulls lesson from SQL if not stored)
     ls = LessonSession
 
-    lesson = s.get_lesson(lid)
+    lesson = ls.get_lesson(lid)
 
     return_message = ""
     

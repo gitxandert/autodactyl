@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS exercises (
   lesson_id     INTEGER,
   exercise      TEXT,
   solution      TEXT,
-  UNIQUE(course_id, id)
+  UNIQUE(lesson_id, id)
 );
 
 CREATE TABLE IF NOT EXISTS quizzes (
@@ -72,7 +72,6 @@ CREATE TABLE IF NOT EXISTS quizzes (
   quiz          TEXT,
   options       TEXT,
   answer        INTEGER,
-  explanation   TEXT
   position      INTEGER NOT NULL,
   status        INTEGER NOT NULL,
   UNIQUE(course_id, position)
@@ -88,14 +87,6 @@ CREATE TABLE IF NOT EXISTS projects (
   UNIQUE(course_id, position)
 );
 
-CREATE INDEX IF NOT EXISTS idx_lessons_course   ON lessons(course_id, position);
-CREATE INDEX IF NOT EXISTS idx_exercises_course ON exercises(course_id, position);
-CREATE INDEX IF NOT EXISTS idx_quizzes_course   ON quizzes(course_id, position);
-CREATE INDEX IF NOT EXISTS idx_projects_course  ON projects(course_id, position);
-CREATE INDEX IF NOT EXISTS idx_lessons_section   ON lessons(section_id);
-CREATE INDEX IF NOT EXISTS idx_exercises_section ON exercises(section_id);
-CREATE INDEX IF NOT EXISTS idx_quizzes_section   ON quizzes(section_id);
-CREATE INDEX IF NOT EXISTS idx_projects_section  ON projects(section_id);
 """
 
 def init_db():
@@ -245,6 +236,7 @@ def update_lesson_sql(con: Connection, l: dict):
     con.commit()
 
 def get_course_info(con: Connection, course_id: int):
+    print("made it into get_course_info")
     with con.cursor() as cur:
         cur.execute(
             """
@@ -271,6 +263,7 @@ def get_summaries(con: Connection, c_id: int, s_id: int, l_pos: int):
 #
 # if lesson's position > 1 and its section's position > 1,
 # pull summaries from previous lessons in the section and previous sections
+    print("made it into get_summaries")
     with con.cursor() as cur:
         # first check if there are prior sections or lessons
         cur.execute(
@@ -399,7 +392,7 @@ def push_exercise_to_sql(con: Connection, cid: int, sid: int, lid: int, exercise
         )
     con.commit()
 
-def get_exercise(con: Connection, eid: int) -> Dict[str, Any]]:
+def get_exercise(con: Connection, eid: int) -> Dict[str, Any]:
     with con.cursor() as cur:
         cur.execute("""
             SELECT
