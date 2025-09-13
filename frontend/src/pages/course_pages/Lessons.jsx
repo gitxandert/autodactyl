@@ -6,6 +6,7 @@ import { Link, useParams } from "react-router-dom";
 import Home from "../Home.jsx";
 import Courses from "./Courses.jsx";
 import Sections from "./Sections.jsx";
+import Exercises from "./Exercises.jsx";
 
 /* components */
 import Chat from "../../components/Chat.tsx";
@@ -46,6 +47,7 @@ export default function Lessons() {
    const [description,   setDescription  ] = useState("");
    const [showChat,      setShowChat     ] = useState(false);
    const [specialMess,   setSpecialMess  ] = useState("");
+   const [exercises,     setExercises    ] = useState(false);
 
    function setSpecialMessage() {
      const lstatus = currentLesson["status"];
@@ -122,10 +124,20 @@ export default function Lessons() {
                   </div>
                </div>
             ) : description ? (
-               <>
+               <div style={{ display:"flex", flexDirection:"column" }}>
                   <p>{description}</p>
                   <button className="lessonBtn" onClick={() => openLesson()}>Open</button>
-               </>
+                  {currentLesson ? (
+                    currentLesson.status === 2 ? (
+                      <>
+                        <button onClick={() => setExercises(!exercises)}>Exercises</button>
+                        {exercises ? (
+                          <Exercises lid={currentLesson.id} />
+                        ) : ( <></> )}
+                      </>
+                    ) : ( <></> )
+                  ) : ( <></> )}
+               </div>
             ) : (
                <em>Select a lesson to see its description</em>
             )}

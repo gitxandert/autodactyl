@@ -204,7 +204,7 @@ export default function Chat({
       {specialBtn && target ?
           createPortal(
             <button
-              onClick={() => void specialsend()}
+              onClick={() => void specialSend()}
               disabled={busy || disabled || specialMessage === "finished"}
               style={{
                 ...btnStyle,
@@ -264,7 +264,7 @@ export default function Chat({
       <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
         {specialBtn ?
           <button
-            onClick={() => void specialsend()}
+            onClick={() => void specialSend()}
             disabled={busy || disabled || specialMessage === "Finished"}
             style={{
               ...btnStyle,

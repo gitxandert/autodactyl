@@ -18,6 +18,7 @@ export function useApi(base = API_BASE) {
    }, []);
 
    const LLMchat = async ({purpose, message, session_id}) => {
+      console.log(purpose, message, session_id);
       const sid = String(session_id);
       const res = await fetch(`${base}/api/chat`, {
          method: "POST",
