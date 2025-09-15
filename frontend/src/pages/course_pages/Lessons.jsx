@@ -90,10 +90,24 @@ export default function Lessons() {
       }, [currentLesson.id, currentLesson.messages]
    );
 
+  const [reentry, setReentry] = useState("");
+  const [exExit,  setExExit ] = useState("");
+  const [exSet,   setExSet  ] = useState(false);
+
+  function exerciseTransition() {
+    setExercises(!exercises);
+    if (!exSet) {
+      setExSet(true);
+      setReentry("lessons-reentry");
+      setExExit("exercises-exit-right");
+    }
+  }
+
    if (error) return <div className="p-4 text-red-500">Error: {error}</div>;
+
    return (
       <div className="lessons">
-         <AnimatedElement className="lessons-list">
+         <AnimatedElement className={`lessons-list ${exercises ? 'lessons-exit-left': reentry}`}>
          <h2 className="lessons-header">Lessons</h2>
          <div>
             <ol className="dynamicList">
@@ -125,15 +139,17 @@ export default function Lessons() {
                </div>
             ) : description ? (
                <div style={{ display:"flex", flexDirection:"column" }}>
-                  <p>{description}</p>
-                  <button className="lessonBtn" onClick={() => openLesson()}>Open</button>
+                  <p className={`lesson-description ${exercises ? 'lessons-exit-left' : reentry}`}>{description}</p>
+                  <button className={`lessonBtn ${exercises ? 'lessons-exit-left' : reentry}`} onClick={() => openLesson()}>Open</button>
                   {currentLesson ? (
                     currentLesson.status === 2 ? (
                       <>
-                        <button onClick={() => setExercises(!exercises)}>Exercises</button>
-                        {exercises ? (
-                          <Exercises lid={currentLesson.id} />
-                        ) : ( <></> )}
+                        <button onClick={() => exerciseTransition()}>Exercises</button>
+                        <div className={`exercises ${exercises ? 'exercises-enter-right' : exExit}`}>
+                          {exSet ? (
+                            <Exercises lid={currentLesson.id} />
+                          ) : ( <></> )}
+                        </div>
                       </>
                     ) : ( <></> )
                   ) : ( <></> )}

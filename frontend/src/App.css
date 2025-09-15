@@ -288,7 +288,75 @@ body {
   to {
     transform: scale(1);
   }
-}   
+}
+
+.exercises {
+  transform: translate(1000px, 0);
+}
+
+.lessons-exit-left {
+  animation: exit-left 1s ease forwards;
+}
+
+@keyframes exit-left {
+  from {
+    transform: translate(0,0);
+    opacity: 1;
+  }
+
+  to {
+    transform: translate(-2000px, 0);
+    opacity: 0;
+  }
+}
+
+.lessons-reentry {
+  animation: enter-left 0.5s ease forwards;
+}
+
+@keyframes enter-left {
+  from {
+    transform: translate(-2000px, 0);
+    opacity: 0;
+  }
+
+  to {
+    transform: translate(0px, 0);
+    opacity: 1;
+  }
+}
+
+.exercises-enter-right {
+  animation: enter-right 0.5s ease forwards;
+}
+
+@keyframes enter-right {
+  from {
+    transform: translate(1000px, 0);
+    opacity: 0;
+  }
+
+  to {
+    transform: translate(0px, 0);
+    opacity: 1;
+  }
+}
+
+.exercises-exit-right {
+  animation: exit-right 0.5s ease forwards;
+}
+
+@keyframes exit-right {
+  from {
+    transform: translate(0px, 0);
+    opacity: 1;
+  }
+
+  to {
+    transform: translate(1000px, 0);
+    opacity: 0;
+  }
+}  
 
 @media (prefers-color-scheme: dark) {
 
