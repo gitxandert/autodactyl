@@ -28,43 +28,49 @@ Return a solution to the following exercise:
 {exercise}
 """)
 
+EXERCISE_TITLE_PROMPT = PromptTemplate.from_template("""
+You have just created an exercise for a course called {course}.
+
+Create a short title (between two and five words) for the exercise.
+*Do not reveal the solution to the exercise in the title.*
+
+Here is the exercise:
+{exercise}
+""")
+
 DB_PATH = os.environ["DATABASE_URL"]
 
 class Exercise:
     _exercise = ""
+    _title    = ""
     _solution = ""
-    _cid = None
-    _sid = None
     _lid = None
     
     @staticmethod
     def save_exercise():
         with psycopg.connect("DB_PATH") as con:
-            if _cid is not None and _lid is not None:
-                db.push_exercise_to_sql(con, Exercise._exercise, Exercise._solution, Exercise._cid, Exercise._sid, Exercise._lid);
+            if Exercise._lid is not None:
+                db.push_exercise_to_sql(con, Exercise._lid, Exercise._title, Exercise._exercise, Exercise._solution);
 
     @staticmethod
-    def hold_exercise(ex: str, sol: str, cid: int, sid: int, lid: int):
-        _exercise = ex
-        _solution = sol
-        _cid = cid
-        _sid = sid
-        _lid = lid
+    def hold_exercise(ex: str, sol: str, tit: str, lid: int):
+        Exercise._exercise = ex
+        Exercise._title    = tit
+        Exercise._solution = sol
+        Exercise._lid      = lid
 
     @staticmethod
     def reset():
-        _exercise = ""
-        _solution = ""
-        _cid = None
-        _sid = None
-        _lid = None
+        Exercise._exercise = ""
+        Exercise._tit      = ""
+        Exercise._solution = ""
+        Exercise._lid      = None
 
 def create_exercise(lid: int) -> Str:
     with psycopg.connect(DB_PATH) as con:
         lesson = db.get_single_lesson(con, lid)
         lesson = lesson["title"]
         cid = lesson["course_id"]
-        sid = lesson["section_id"]
         course, _ = db.get_course_info(con, cid)
         messages = "\n\n".join(lesson["messages"])
     
@@ -78,6 +84,12 @@ def create_exercise(lid: int) -> Str:
         "lesson":       messages,
     }).content
     
+    chain = EXERCISE_TITLE_PROMPT | model
+    title = chain.invoke({
+        "course":   course,
+        "exercise": exercise,
+    }).content
+
     chain = EXERCISE_SOLUTION_PROMPT | model
     solution = chain.invoke({
         "course":   course,
@@ -85,7 +97,7 @@ def create_exercise(lid: int) -> Str:
         "exercise": exercise,
     }).content
     
-    Exercise.hold_exercise(exercise, solution, cid, sid, lid);
+    Exercise.hold_exercise(exercise, title, solution, lid);
     return exercise
 
 def commit_exercise():

@@ -144,7 +144,7 @@ export default function Lessons() {
                   {currentLesson ? (
                     currentLesson.status === 2 ? (
                       <>
-                        <button onClick={() => exerciseTransition()}>Exercises</button>
+                        <button onClick={() => exerciseTransition()}>{exercises ? `Return to ${currentLesson.title}` : 'Exercises'}</button>
                         <div className={`exercises ${exercises ? 'exercises-enter-right' : exExit}`}>
                           {exSet ? (
                             <Exercises lid={currentLesson.id} />
@@ -155,7 +155,7 @@ export default function Lessons() {
                   ) : ( <></> )}
                </div>
             ) : (
-               <em>Select a lesson to see its description</em>
+               <em>Select a lesson for contents</em>
             )}
          </div>
          </AnimatedElement>
