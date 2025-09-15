@@ -403,7 +403,7 @@ def get_exercise(con: Connection, eid: int) -> Dict[str, Any]:
             WHERE
                 e.id = %s
             """,
-            (eid),
+            (eid,),
         )
         exercise = cur.fetchone()
     return exercise
@@ -418,7 +418,7 @@ def get_all_exercises(con: Connection, lid: int) -> List[Dict[str, Any]]:
             WHERE
                 e.lesson_id = %s
             """,
-            (lid),
+            (lid,),
         )
         rows = cur.fetchall()
     return rows

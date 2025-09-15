@@ -117,6 +117,21 @@ export function useApi(base = API_BASE) {
       return json.result;
    },[]);
 
+  const newExercise = useCallback(async (l_id) => {
+      const id = Number(l_id);
+      const res = await fetch(`${base}/api/new-exercise?l_id=${id}`, {
+         credentials: "include",
+         headers: { Accept: "application/json" },
+      });
+
+      if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
+
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || "Failed to create exercise.");
+
+      return json.result;
+   },[]);
+  
    return {
       getUser,
       LLMchat,

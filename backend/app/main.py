@@ -151,7 +151,7 @@ def list_lessons(section_id: int = Query(..., ge=1), con: Connection = Depends(g
 @app.get("/api/list-exercises")
 def list_exercises(lesson_id: int = Query(..., ge=1), con: Connection = Depends(get_conn)):
     try:
-        exercises = db.get_exercises(con, lesson_id)
+        exercises = db.get_all_exercises(con, lesson_id)
         return {"ok": True, "result": exercises}
     except Exception as e:
         return JSONResponse({"ok": False, "error": str(e)}, status_code=500)
