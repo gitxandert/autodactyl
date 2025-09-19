@@ -25,4 +25,8 @@ An exciting projected feature is the Autodactyl Community, a hub where users can
 - Function: Intuitive UI for building and learning courses and interacting with the broader Autodactyl Community.
 - Planned Features:
   - Community tab for sharing and iterating on courses.
-  - Deployment via AWS EC2.
+  - Deployment to AWS, using Terraform to configure:
+    - S3 bucket for TF state locking
+    - CloudFront distribution for React
+    - ECS Fargate for FastAPI
+    - EC2 instance for Ollama
